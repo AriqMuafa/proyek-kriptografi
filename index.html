@@ -9,11 +9,11 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://unpkg.com/recharts/umd/Recharts.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/lucide-static/0.321.0/lucide.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        body { background: radial-gradient(circle at top, #1e1b4b, #0f172a); min-height: 100vh; color: white; }
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #a855f7; border-radius: 10px; }
+        body { background-color: #0f172a; }
     </style>
 </head>
 <body>
@@ -23,13 +23,62 @@
         const { useState, useEffect, useMemo } = React;
         const { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } = Recharts;
 
+        // --- Core Crypto Logic (JS Version) ---
+        const IRREDUCIBLE_POLY = 0x11B;
+        const AES_CONSTANT = 0x63;
+
+        const gfMultiply = (a, b) => {
+            let p = 0;
+            for (let i = 0; i < 8; i++) {
+                if (b & 1) p ^= a;
+                const hiBitSet = a & 0x80;
+                a <<= 1;
+                if (hiBitSet) a ^= IRREDUCIBLE_POLY;
+                b >>= 1;
+            }
+            return p & 0xFF;
+        };
+
+        const generateInverseTable = () => {
+            const inv = new Array(256).fill(0);
+            for (let i = 1; i < 256; i++) {
+                for (let j = 1; j < 256; j++) {
+                    if (gfMultiply(i, j) === 1) { inv[i] = j; break; }
+                }
+            }
+            return inv;
+        };
+
+        const INVERSE_TABLE = generateInverseTable();
+        const byteToBits = (byteVal) => Array.from({ length: 8 }, (_, i) => (byteVal >> i) & 1);
+        const bitsToByte = (bits) => {
+            let val = 0;
+            for (let i = 0; i < 8; i++) { if (bits[i]) val |= (1 << i); }
+            return val;
+        };
+
+        const createSbox = (matrix, constant) => {
+            const sbox = [];
+            for (let x = 0; x < 256; x++) {
+                const invX = INVERSE_TABLE[x];
+                const invBits = byteToBits(invX);
+                const transBits = matrix.map(row => 
+                    row.reduce((sum, val, idx) => sum + (val * invBits[idx]), 0) % 2
+                );
+                sbox.push(bitsToByte(transBits) ^ constant);
+            }
+            return sbox;
+        };
+
         const SboxAnalyzer = () => {
             const [data, setData] = useState({ candidates: [] });
             const [selectedCandidate, setSelectedCandidate] = useState(null);
+            const [activeTab, setActiveTab] = useState('analysis');
+            const [inputText, setInputText] = useState('');
+            const [outputText, setOutputText] = useState('');
             const [searchTerm, setSearchTerm] = useState('');
-            const [sortBy, setSortBy] = useState('NL');
 
-            // 1. AMBIL DATA DARI API PYTHON
+            // Fetch Data dari Koyeb Backend
             useEffect(() => {
                 fetch('/api/data')
                     .then(res => res.json())
@@ -39,86 +88,117 @@
                     });
             }, []);
 
-            // Logika perhitungan skor (tetap menggunakan rumus Anda)
-            const calculateSecurityScore = (metrics) => {
-                const weights = { NL: 1, SAC: 1, LAP: 1, DAP: 1 }; // Contoh simplifikasi
-                return Math.round((metrics.NL / 128) * 100); 
+            // Generate S-Box Realtime
+            const sbox = useMemo(() => {
+                if (!selectedCandidate?.matrix) return null;
+                return createSbox(selectedCandidate.matrix, AES_CONSTANT);
+            }, [selectedCandidate]);
+
+            const invSbox = useMemo(() => {
+                if (!sbox) return null;
+                const inv = new Array(256);
+                for (let i = 0; i < 256; i++) inv[sbox[i]] = i;
+                return inv;
+            }, [sbox]);
+
+            const handleEncrypt = () => {
+                if (!sbox || !inputText) return;
+                const bytes = new TextEncoder().encode(inputText);
+                const result = Array.from(bytes).map(b => sbox[b]);
+                setOutputText(result.map(b => b.toString(16).padStart(2, '0')).join(' '));
             };
 
             const filteredCandidates = useMemo(() => {
-                return data.candidates
-                    .filter(c => c.name.toLowerCase().includes(searchTerm.toLowerCase()))
-                    .sort((a, b) => b.metrics[sortBy] - a.metrics[sortBy]);
-            }, [data.candidates, searchTerm, sortBy]);
+                return data.candidates.filter(c => c.name.toLowerCase().includes(searchTerm.toLowerCase()));
+            }, [data.candidates, searchTerm]);
 
-            const radarData = useMemo(() => {
-                if (!selectedCandidate) return [];
-                const m = selectedCandidate.metrics;
-                return [
-                    { subject: 'NL', A: m.NL, fullMark: 128 },
-                    { subject: 'SAC', A: m.SAC * 200, fullMark: 100 },
-                    { subject: 'LAP', A: (1 - m.LAP) * 100, fullMark: 100 },
-                    { subject: 'DAP', A: (1 - m.DAP) * 100, fullMark: 100 },
-                    { subject: 'DU', A: (1 - (m.DU/10)) * 100, fullMark: 100 }
-                ];
-            }, [selectedCandidate]);
+            if (!selectedCandidate) return <div className="p-20 text-center text-white">Loading S-Box Data...</div>;
 
             return (
-                <div className="p-6 max-w-7xl mx-auto">
-                    <header className="mb-10 text-center">
-                        <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">
-                            S-Box Cryptographic Analyzer
+                <div className="min-h-screen text-slate-200 p-4 md:p-8 bg-gradient-to-br from-slate-900 via-purple-950 to-slate-900">
+                    <header className="max-w-7xl mx-auto mb-8">
+                        <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
+                            S-BOX ANALYZER PRO
                         </h1>
-                        <p className="text-slate-400">Advanced Visualization for AES Candidates</p>
+                        <p className="text-purple-300">Live Encryption & Metric Analytics</p>
                     </header>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                        {/* Sidebar: List Kandidat */}
-                        <div className="bg-slate-800/50 p-4 rounded-2xl border border-slate-700">
+                    <nav className="flex gap-4 mb-8 max-w-7xl mx-auto">
+                        <button onClick={() => setActiveTab('analysis')} className={`px-6 py-2 rounded-full font-bold transition ${activeTab === 'analysis' ? 'bg-purple-600 text-white' : 'bg-slate-800 text-slate-400'}`}>Analysis</button>
+                        <button onClick={() => setActiveTab('encryption')} className={`px-6 py-2 rounded-full font-bold transition ${activeTab === 'encryption' ? 'bg-purple-600 text-white' : 'bg-slate-800 text-slate-400'}`}>Live Encrypt</button>
+                    </nav>
+
+                    <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        {/* Sidebar */}
+                        <div className="bg-black/40 p-4 rounded-2xl border border-white/10 h-[700px] flex flex-col">
                             <input 
-                                type="text" 
-                                placeholder="Cari kandidat..." 
-                                className="w-full bg-slate-900 border border-slate-700 p-2 rounded-lg mb-4 text-white"
+                                type="text" placeholder="Search Matrix..." 
+                                className="w-full bg-slate-900 border border-slate-700 p-3 rounded-xl mb-4 text-white"
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
-                            <div className="h-[600px] overflow-y-auto custom-scrollbar space-y-2">
+                            <div className="overflow-y-auto custom-scrollbar flex-1 space-y-2">
                                 {filteredCandidates.map(c => (
                                     <div 
-                                        key={c.id}
-                                        onClick={() => setSelectedCandidate(c)}
-                                        className={`p-4 rounded-xl cursor-pointer transition ${selectedCandidate?.id === c.id ? 'bg-purple-600 border-purple-400' : 'bg-slate-900/50 hover:bg-slate-700'}`}
+                                        key={c.id} onClick={() => setSelectedCandidate(c)}
+                                        className={`p-4 rounded-xl cursor-pointer transition ${selectedCandidate.id === c.id ? 'bg-purple-600 shadow-lg shadow-purple-500/20' : 'bg-slate-800/50 hover:bg-slate-800'}`}
                                     >
-                                        <div className="font-bold">{c.id}</div>
-                                        <div className="text-xs opacity-60">NL: {c.metrics.NL} | SAC: {c.metrics.SAC.toFixed(3)}</div>
+                                        <div className="font-bold">{c.name}</div>
+                                        <div className="text-xs text-purple-300">NL: {c.metrics.NL} | DU: {c.metrics.DU}</div>
                                     </div>
                                 ))}
                             </div>
                         </div>
 
-                        {/* Main: Visualisasi */}
-                        <div className="lg:col-span-2 space-y-6">
-                            {selectedCandidate && (
-                                <div className="bg-slate-800/50 p-6 rounded-2xl border border-slate-700">
-                                    <h2 className="text-2xl font-bold mb-4">{selectedCandidate.name}</h2>
-                                    <div className="h-[400px]">
-                                        <ResponsiveContainer width="100%" height="100%">
-                                            <RadarChart cx="50%" cy="50%" outerRadius="80%" data={radarData}>
-                                                <PolarGrid stroke="#475569" />
-                                                <PolarAngleAxis dataKey="subject" tick={{fill: '#94a3b8'}} />
-                                                <Radar name="Metrics" dataKey="A" stroke="#a855f7" fill="#a855f7" fillOpacity={0.6} />
-                                                <Tooltip />
-                                            </RadarChart>
-                                        </ResponsiveContainer>
+                        {/* Content */}
+                        <div className="lg:col-span-2">
+                            {activeTab === 'analysis' ? (
+                                <div className="space-y-6">
+                                    <div className="bg-black/40 p-6 rounded-2xl border border-white/10">
+                                        <h2 className="text-2xl font-bold mb-6 text-white">Visual Analytics: {selectedCandidate.id}</h2>
+                                        <div className="h-[400px]">
+                                            <ResponsiveContainer width="100%" height="100%">
+                                                <RadarChart cx="50%" cy="50%" outerRadius="80%" data={[
+                                                    { m: 'NL', v: selectedCandidate.metrics.NL },
+                                                    { m: 'SAC', v: selectedCandidate.metrics.SAC * 200 },
+                                                    { m: 'AD', v: selectedCandidate.metrics.AD * 10 },
+                                                    { m: 'CI', v: selectedCandidate.metrics.CI * 100 }
+                                                ]}>
+                                                    <PolarGrid stroke="#475569" />
+                                                    <PolarAngleAxis dataKey="m" tick={{fill: '#94a3b8'}} />
+                                                    <Radar dataKey="v" stroke="#a855f7" fill="#a855f7" fillOpacity={0.5} />
+                                                    <Tooltip />
+                                                </RadarChart>
+                                            </ResponsiveContainer>
+                                        </div>
                                     </div>
+                                </div>
+                            ) : (
+                                <div className="bg-black/40 p-6 rounded-2xl border border-white/10 space-y-4">
+                                    <h2 className="text-2xl font-bold text-white">Live Substitution Cipher</h2>
+                                    <p className="text-slate-400 text-sm">Testing encryption using S-Box from <strong>{selectedCandidate.name}</strong></p>
                                     
-                                    {/* Grid Metrik Angka */}
-                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-                                        {Object.entries(selectedCandidate.metrics).map(([key, val]) => (
-                                            <div key={key} className="bg-slate-900 p-3 rounded-lg text-center border border-slate-700">
-                                                <div className="text-xs text-slate-500 uppercase">{key}</div>
-                                                <div className="text-xl font-mono text-purple-400">{typeof val === 'number' ? val.toFixed(3) : val}</div>
-                                            </div>
-                                        ))}
+                                    <div>
+                                        <label className="block text-xs font-bold text-slate-500 mb-2 uppercase">Input Plaintext</label>
+                                        <textarea 
+                                            className="w-full bg-slate-900 border border-slate-700 p-4 rounded-xl text-white font-mono h-32"
+                                            placeholder="Enter text here..."
+                                            value={inputText}
+                                            onChange={(e) => setInputText(e.target.value)}
+                                        />
+                                    </div>
+
+                                    <button 
+                                        onClick={handleEncrypt}
+                                        className="w-full bg-gradient-to-r from-purple-600 to-pink-600 p-4 rounded-xl font-black text-white hover:opacity-90 transition"
+                                    >
+                                        RUN SUBSTITUTION
+                                    </button>
+
+                                    <div>
+                                        <label className="block text-xs font-bold text-slate-500 mb-2 uppercase">Output Hexadecimal</label>
+                                        <div className="w-full bg-black border border-slate-700 p-4 rounded-xl text-green-400 font-mono h-32 overflow-y-auto">
+                                            {outputText || 'Encrypted hex will appear here...'}
+                                        </div>
                                     </div>
                                 </div>
                             )}
