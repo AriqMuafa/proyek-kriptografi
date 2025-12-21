@@ -1,66 +1,37 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>S-Box Cryptographic Analyzer</title>
+    <title>S-Box Analyzer Pro</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Fira+Code&display=swap" rel="stylesheet">
     
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    
+    <script src="https://unpkg.com/prop-types@15.8.1/prop-types.min.js"></script>
+    
+    <script src="https://unpkg.com/recharts@2.10.3/umd/Recharts.js"></script>
     
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    
-    <script src="https://unpkg.com/recharts/umd/Recharts.js"></script>
-    
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #0f172a; }
-        .font-mono { font-family: 'Fira Code', monospace; }
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #a855f7; border-radius: 10px; }
+        body { background-color: #0f172a; color: white; }
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #7c3aed; border-radius: 10px; }
     </style>
 </head>
 <body>
     <div id="root"></div>
 
     <script type="text/babel">
-        // Mengambil komponen dari Global Object (Solusi untuk Recharts is not defined)
-        const { 
-            RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, 
-            ResponsiveContainer, Tooltip 
-        } = window.Recharts;
         const { useState, useEffect, useMemo } = React;
-
-        const AES_CONSTANT = 0x63;
-        const IRREDUCIBLE_POLY = 0x11B;
-
-        // Fungsi Helper Kriptografi
-        const gfMultiply = (a, b) => {
-            let p = 0;
-            for (let i = 0; i < 8; i++) {
-                if (b & 1) p ^= a;
-                const hiBitSet = a & 0x80;
-                a <<= 1;
-                if (hiBitSet) a ^= IRREDUCIBLE_POLY;
-                b >>= 1;
-            }
-            return p & 0xFF;
-        };
-
-        const generateInverseTable = () => {
-            const inv = new Array(256).fill(0);
-            for (let i = 1; i < 256; i++) {
-                for (let j = 1; j < 256; j++) {
-                    if (gfMultiply(i, j) === 1) { inv[i] = j; break; }
-                }
-            }
-            return inv;
-        };
-        const INVERSE_TABLE = generateInverseTable();
+        
+        // Proteksi agar tidak error jika Recharts terlambat dimuat
+        const RechartsObj = window.Recharts || {};
+        const { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer, Tooltip } = RechartsObj;
 
         const SboxApp = () => {
             const [data, setData] = useState({ candidates: [] });
@@ -76,87 +47,82 @@
                         setData(json);
                         if (json.candidates?.length > 0) setSelected(json.candidates[0]);
                     })
-                    .catch(err => console.error("Gagal load data:", err));
+                    .catch(err => console.error("API Error:", err));
             }, []);
 
-            // Logika Enkripsi Sederhana
             const handleEncrypt = () => {
                 if (!selected || !input) return;
-                // Logika S-Box sederhana untuk demo
                 const bytes = new TextEncoder().encode(input);
-                const result = Array.from(bytes).map(b => (b ^ AES_CONSTANT).toString(16).padStart(2, '0'));
+                const result = Array.from(bytes).map(b => (b ^ 0x63).toString(16).padStart(2, '0'));
                 setOutput(result.join(' '));
             };
 
-            if (!selected) return <div className="text-white p-20 text-center">Memuat Data Analisis...</div>;
-
-            const radarData = [
-                { subject: 'NL', A: selected.metrics.NL, fullMark: 128 },
-                { subject: 'SAC', A: selected.metrics.SAC * 100, fullMark: 100 },
-                { subject: 'AD', A: selected.metrics.AD * 10, fullMark: 100 },
-                { subject: 'CI', A: selected.metrics.CI * 100, fullMark: 100 }
-            ];
+            if (!selected) return <div className="p-20 text-center">Inisialisasi Library...</div>;
+            if (!RadarChart) return <div className="p-20 text-center text-red-400">Gagal memuat Grafik. Refresh halaman (Ctrl+F5).</div>;
 
             return (
-                <div className="min-h-screen text-slate-200 p-4 md:p-8 bg-gradient-to-br from-slate-900 via-purple-950 to-slate-900">
+                <div className="min-h-screen p-4 md:p-10 bg-gradient-to-br from-slate-900 via-purple-950 to-black">
                     <div className="max-w-7xl mx-auto">
-                        <header className="mb-8 border-b border-white/10 pb-6">
-                            <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">
-                                S-Box Cryptographic Analyzer
+                        <header className="mb-10">
+                            <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">
+                                S-Box Analyzer
                             </h1>
-                            <p className="text-purple-300 mt-2">Data Terkini: {data.metadata?.generated_at || '2025'}</p>
                         </header>
 
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                            {/* List Kandidat */}
-                            <div className="bg-black/40 rounded-2xl border border-white/10 p-4 h-[600px] overflow-y-auto custom-scrollbar">
-                                <h3 className="text-xl font-bold mb-4 px-2">Kandidat Matrix</h3>
+                            {/* List Sidebar */}
+                            <div className="bg-slate-900/50 border border-white/10 rounded-2xl p-4 h-[600px] overflow-y-auto custom-scrollbar">
                                 {data.candidates.map(c => (
                                     <div 
                                         key={c.id} 
                                         onClick={() => setSelected(c)}
-                                        className={`p-4 mb-2 rounded-xl cursor-pointer transition ${selected.id === c.id ? 'bg-purple-600' : 'bg-slate-800/50 hover:bg-slate-800'}`}
+                                        className={`p-4 mb-2 rounded-xl cursor-pointer transition ${selected.id === c.id ? 'bg-purple-600' : 'bg-slate-800/40 hover:bg-slate-800'}`}
                                     >
-                                        <div className="font-bold">{c.name}</div>
-                                        <div className="text-xs opacity-70">NL: {c.metrics.NL} | SAC: {c.metrics.SAC.toFixed(3)}</div>
+                                        <div className="font-bold text-white">{c.name}</div>
+                                        <div className="text-xs text-purple-300">NL: {c.metrics.NL}</div>
                                     </div>
                                 ))}
                             </div>
 
-                            {/* Panel Visualisasi & Enkripsi */}
+                            {/* Main Display */}
                             <div className="lg:col-span-2 space-y-6">
-                                <div className="flex gap-2 p-1 bg-black/40 rounded-lg border border-white/10 w-fit">
-                                    <button onClick={() => setActiveTab('analysis')} className={`px-6 py-2 rounded-md font-bold ${activeTab === 'analysis' ? 'bg-purple-600' : ''}`}>Analisis Metrik</button>
-                                    <button onClick={() => setActiveTab('encrypt')} className={`px-6 py-2 rounded-md font-bold ${activeTab === 'encrypt' ? 'bg-purple-600' : ''}`}>Uji Enkripsi</button>
+                                <div className="flex bg-slate-900/80 p-1 rounded-xl w-fit border border-white/5">
+                                    <button onClick={() => setActiveTab('analysis')} className={`px-6 py-2 rounded-lg font-bold ${activeTab === 'analysis' ? 'bg-purple-600' : ''}`}>Metrics</button>
+                                    <button onClick={() => setActiveTab('encrypt')} className={`px-6 py-2 rounded-lg font-bold ${activeTab === 'encrypt' ? 'bg-purple-600' : ''}`}>Test Cipher</button>
                                 </div>
 
                                 {activeTab === 'analysis' ? (
-                                    <div className="bg-black/40 p-6 rounded-2xl border border-white/10">
-                                        <h2 className="text-2xl font-bold mb-6 italic text-purple-400">{selected.name}</h2>
+                                    <div className="bg-slate-900/40 p-8 rounded-3xl border border-white/10">
+                                        <h2 className="text-2xl font-bold mb-6 text-purple-400">{selected.name}</h2>
                                         <div className="h-[350px]">
                                             <ResponsiveContainer width="100%" height="100%">
-                                                <RadarChart cx="50%" cy="50%" outerRadius="80%" data={radarData}>
+                                                <RadarChart data={[
+                                                    { m: 'NL', v: selected.metrics.NL },
+                                                    { m: 'SAC', v: selected.metrics.SAC * 100 },
+                                                    { m: 'AD', v: selected.metrics.AD * 10 },
+                                                    { m: 'CI', v: selected.metrics.CI * 100 }
+                                                ]}>
                                                     <PolarGrid stroke="#475569" />
-                                                    <PolarAngleAxis dataKey="subject" tick={{fill: '#94a3b8'}} />
-                                                    <Radar name="Metrics" dataKey="A" stroke="#a855f7" fill="#a855f7" fillOpacity={0.5} />
+                                                    <PolarAngleAxis dataKey="m" tick={{fill: '#94a3b8'}} />
+                                                    <Radar dataKey="v" stroke="#a855f7" fill="#a855f7" fillOpacity={0.5} />
                                                     <Tooltip contentStyle={{backgroundColor: '#1e293b', border: 'none'}} />
                                                 </RadarChart>
                                             </ResponsiveContainer>
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="bg-black/40 p-6 rounded-2xl border border-white/10 space-y-4">
-                                        <h2 className="text-2xl font-bold mb-4">🔐 Simulasi Substitusi</h2>
+                                    <div className="bg-slate-900/40 p-8 rounded-3xl border border-white/10 space-y-4">
+                                        <h2 className="text-2xl font-bold">Simulasi S-Box</h2>
                                         <textarea 
-                                            className="w-full bg-slate-900 p-4 rounded-xl border border-slate-700 font-mono text-white"
-                                            placeholder="Ketik teks di sini..."
+                                            className="w-full bg-slate-950 p-4 rounded-xl border border-slate-700 text-green-400 font-mono"
+                                            rows="4"
                                             value={input}
                                             onChange={(e) => setInput(e.target.value)}
+                                            placeholder="Input teks..."
                                         />
-                                        <button onClick={handleEncrypt} className="w-full bg-purple-600 py-3 rounded-xl font-bold hover:bg-purple-500 transition">ENKRIPSI SEKARANG</button>
-                                        <div className="mt-4 p-4 bg-black rounded-xl border border-slate-700 min-h-[100px]">
-                                            <div className="text-xs text-slate-500 mb-2 uppercase font-bold">Hasil Hexadecimal:</div>
-                                            <div className="font-mono text-green-400 break-all">{output || 'Hasil akan muncul di sini...'}</div>
+                                        <button onClick={handleEncrypt} className="w-full bg-purple-600 py-3 rounded-xl font-black">PROSES SUBSTITUSI</button>
+                                        <div className="p-4 bg-black rounded-xl border border-slate-800 font-mono text-purple-400 min-h-[100px] break-all">
+                                            {output || 'Output hex akan muncul di sini...'}
                                         </div>
                                     </div>
                                 )}
