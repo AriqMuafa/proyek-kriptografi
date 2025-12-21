@@ -3,44 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>S-Box Analytics Dashboard</title>
-    
+    <title>S-Box Analyzer Pro + Matrix View</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Fira+Code&display=swap" rel="stylesheet">
-    
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    
     <script src="https://unpkg.com/prop-types@15.8.1/prop-types.min.js"></script>
     <script src="https://unpkg.com/recharts@2.10.3/umd/Recharts.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #0f172a; }
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: white; }
         .font-mono { font-family: 'Fira Code', monospace; }
+        .glass-card { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #a855f7; border-radius: 10px; }
-        .glass-card { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
     </style>
 </head>
 <body>
     <div id="root"></div>
 
     <script type="text/babel">
-        // Mengambil Komponen dari Library Global
-        const { 
-            RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, 
-            ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, 
-            CartesianGrid, Legend 
-        } = window.Recharts;
+        const { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer, Tooltip } = window.Recharts;
         const { useState, useEffect, useMemo } = React;
 
-        // Konstanta Kriptografi
         const AES_CONSTANT = 0x63;
         const IRREDUCIBLE_POLY = 0x11B;
 
-        // --- Logic Kriptografi ---
+        // --- Dasar Matematika GF(2^8) ---
         const gfMultiply = (a, b) => {
             let p = 0;
             for (let i = 0; i < 8; i++) {
@@ -79,20 +68,10 @@
             return sbox;
         };
 
-        // --- Komponen Utama ---
         const SboxAnalyzer = () => {
             const [data, setData] = useState({ candidates: [] });
             const [selected, setSelected] = useState(null);
-            const [searchTerm, setSearchTerm] = useState('');
-            const [filterType, setFilterType] = useState('all');
-            const [sortBy, setSortBy] = useState('NL');
             const [activeTab, setActiveTab] = useState('analysis');
-
-            // State Enkripsi
-            const [input, setInput] = useState('');
-            const [outputHex, setOutputHex] = useState('');
-            const [outputText, setOutputText] = useState('');
-            const [mode, setMode] = useState('text');
 
             useEffect(() => {
                 fetch('/api/data')
@@ -101,180 +80,99 @@
                         setData(json);
                         if (json.candidates?.length > 0) setSelected(json.candidates[0]);
                     });
-                // Inisialisasi icon Lucide
-                if (window.lucide) window.lucide.createIcons();
             }, []);
 
-            // Metadata Metrik
-            const metricInfo = {
-                NL: { name: 'Nonlinearity', optimal: 'high', threshold: 100, desc: 'Ketahanan linear' },
-                SAC: { name: 'SAC', optimal: 'close to 0.5', threshold: 0.5, desc: 'Efek salju' },
-                LAP: { name: 'LAP', optimal: 'low', threshold: 0.1, desc: 'Probabilitas Linear' },
-                DAP: { name: 'DAP', optimal: 'low', threshold: 0.02, desc: 'Probabilitas Diferensial' },
-                DU: { name: 'Diff. Unif', optimal: 'low', threshold: 6, desc: 'Diferensial Seragam' },
-                AD: { name: 'Alg. Degree', optimal: 'high', threshold: 6, desc: 'Derajat Aljabar' },
-                CI: { name: 'Confusion', optimal: 'high', threshold: 0.95, desc: 'Indeks Kebingungan' }
-            };
+            const currentSbox = useMemo(() => {
+                return selected?.matrix ? createSboxFromMatrix(selected.matrix) : [];
+            }, [selected]);
 
-            const getMetricScore = (value, m) => {
-                const info = metricInfo[m];
-                if (!info) return 50;
-                if (info.optimal === 'high') return Math.min(100, (value / info.threshold) * 100);
-                if (info.optimal === 'low') return Math.max(0, 100 - (value / info.threshold) * 100);
-                return 100 - Math.abs(value - 0.5) * 200;
-            };
-
-            const calculateSecurityScore = (metrics) => {
-                const scores = Object.keys(metricInfo).map(k => getMetricScore(metrics[k], k));
-                return Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
-            };
-
-            const filtered = useMemo(() => {
-                return data.candidates
-                    .filter(c => (filterType === 'all' || c.type === filterType) && 
-                                 c.name.toLowerCase().includes(searchTerm.toLowerCase()))
-                    .sort((a, b) => b.metrics[sortBy] - a.metrics[sortBy]);
-            }, [data.candidates, searchTerm, filterType, sortBy]);
-
-            const handleProcess = (op) => {
-                if (!selected?.matrix || !input) return;
-                const currentSbox = createSboxFromMatrix(selected.matrix);
-                const invSbox = new Array(256);
-                for(let i=0; i<256; i++) invSbox[currentSbox[i]] = i;
-
-                let bytes = [];
-                if (mode === 'text') {
-                    bytes = Array.from(new TextEncoder().encode(input));
-                } else {
-                    bytes = input.split(/[\s,]+/).map(h => parseInt(h, 16)).filter(n => !isNaN(n));
-                }
-
-                const result = bytes.map(b => op === 'enc' ? currentSbox[b] : invSbox[b]);
-                setOutputHex(result.map(b => b.toString(16).padStart(2, '0')).join(' '));
-                setOutputText(new TextDecoder().decode(new Uint8Array(result)));
-            };
-
-            if (!selected) return <div className="text-white p-20 text-center">Loading Application...</div>;
+            if (!selected) return <div className="p-20 text-center">Loading S-Box Data...</div>;
 
             return (
-                <div className="min-h-screen text-slate-200 bg-gradient-to-br from-slate-900 via-purple-900 to-black p-4 md:p-8">
+                <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-slate-950 via-purple-950 to-black">
                     <div className="max-w-7xl mx-auto">
-                        <header className="mb-8 flex justify-between items-end border-b border-white/10 pb-6">
-                            <div>
-                                <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">S-BOX ANALYZER PRO</h1>
-                                <p className="text-purple-300 mt-2">Advanced Security Visualization & Simulation</p>
-                            </div>
-                            <div className="text-right">
-                                <p className="text-xs uppercase text-slate-500 font-bold">Total Candidates</p>
-                                <p className="text-3xl font-bold">{data.candidates.length}</p>
+                        <header className="mb-10 flex justify-between items-center border-b border-white/10 pb-6">
+                            <h1 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">S-BOX ANALYZER PRO</h1>
+                            <div className="flex bg-slate-900 p-1 rounded-xl border border-white/5">
+                                <button onClick={() => setActiveTab('analysis')} className={`px-6 py-2 rounded-lg text-sm font-bold ${activeTab === 'analysis' ? 'bg-purple-600' : ''}`}>ANALYSIS</button>
+                                <button onClick={() => setActiveTab('matrix')} className={`px-6 py-2 rounded-lg text-sm font-bold ${activeTab === 'matrix' ? 'bg-purple-600' : ''}`}>S-BOX & MATRIX</button>
                             </div>
                         </header>
 
-                        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                            {/* Sidebar Filters & List */}
-                            <div className="lg:col-span-1 space-y-4">
-                                <div className="glass-card p-4 rounded-2xl">
-                                    <input type="text" placeholder="Search..." className="w-full bg-black/40 border border-white/10 p-2 rounded-lg mb-3" onChange={e => setSearchTerm(e.target.value)}/>
-                                    <select className="w-full bg-black/40 border border-white/10 p-2 rounded-lg mb-3" onChange={e => setFilterType(e.target.value)}>
-                                        <option value="all">All Types</option>
-                                        <option value="standard">Standard</option>
-                                        <option value="proposed">Proposed</option>
-                                    </select>
-                                    <select className="w-full bg-black/40 border border-white/10 p-2 rounded-lg" onChange={e => setSortBy(e.target.value)}>
-                                        <option value="NL">Sort by NL</option>
-                                        <option value="CI">Sort by Confusion</option>
-                                    </select>
-                                </div>
-                                <div className="glass-card rounded-2xl h-[500px] overflow-y-auto custom-scrollbar p-2">
-                                    {filtered.map(c => (
-                                        <div key={c.id} onClick={() => setSelected(c)} className={`p-3 mb-2 rounded-xl cursor-pointer transition ${selected.id === c.id ? 'bg-purple-600' : 'hover:bg-white/5'}`}>
-                                            <div className="font-bold text-sm">{c.name}</div>
-                                            <div className="flex justify-between text-xs opacity-60 mt-1">
-                                                <span>NL: {c.metrics.NL}</span>
-                                                <span>Score: {calculateSecurityScore(c.metrics)}%</span>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
+                        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                            {/* Sidebar */}
+                            <div className="lg:col-span-1 glass-card rounded-2xl h-[700px] overflow-y-auto custom-scrollbar p-2">
+                                {data.candidates.map(c => (
+                                    <div key={c.id} onClick={() => setSelected(c)} className={`p-4 mb-2 rounded-xl cursor-pointer transition ${selected.id === c.id ? 'bg-purple-600 shadow-lg' : 'hover:bg-white/5'}`}>
+                                        <div className="font-bold text-sm">{c.name}</div>
+                                        <div className="text-[10px] opacity-60 mt-1 uppercase">NL: {c.metrics.NL} | DU: {c.metrics.DU}</div>
+                                    </div>
+                                ))}
                             </div>
 
                             {/* Main Content */}
-                            <div className="lg:col-span-3 space-y-6">
-                                <div className="flex gap-2 p-1 bg-black/40 rounded-xl w-fit border border-white/10">
-                                    <button onClick={() => setActiveTab('analysis')} className={`px-6 py-2 rounded-lg font-bold transition ${activeTab === 'analysis' ? 'bg-purple-600' : ''}`}>Analysis</button>
-                                    <button onClick={() => setActiveTab('encryption')} className={`px-6 py-2 rounded-lg font-bold transition ${activeTab === 'encryption' ? 'bg-purple-600' : ''}`}>Encryption</button>
-                                </div>
-
+                            <div className="lg:col-span-3">
                                 {activeTab === 'analysis' ? (
-                                    <div className="space-y-6">
-                                        <div className="glass-card p-6 rounded-3xl grid grid-cols-1 md:grid-cols-2 gap-8">
-                                            <div>
-                                                <h2 className="text-3xl font-black mb-2 text-white">{selected.id}</h2>
-                                                <p className="text-purple-400 mb-6 font-mono text-sm">{selected.name}</p>
-                                                <div className="h-[300px]">
-                                                    <ResponsiveContainer width="100%" height="100%">
-                                                        <RadarChart cx="50%" cy="50%" outerRadius="80%" data={Object.keys(metricInfo).map(k => ({subject: k, A: getMetricScore(selected.metrics[k], k)}))}>
-                                                            <PolarGrid stroke="#475569" />
-                                                            <PolarAngleAxis dataKey="subject" tick={{fill: '#94a3b8'}} />
-                                                            <Radar dataKey="A" stroke="#a855f7" fill="#a855f7" fillOpacity={0.5} />
-                                                            <Tooltip />
-                                                        </RadarChart>
-                                                    </ResponsiveContainer>
-                                                </div>
-                                            </div>
-                                            <div className="grid grid-cols-2 gap-3">
-                                                {Object.entries(selected.metrics).map(([k, v]) => (
-                                                    <div key={k} className="bg-white/5 p-3 rounded-xl border border-white/5">
-                                                        <div className="text-[10px] uppercase text-slate-500 font-black">{k}</div>
-                                                        <div className="text-xl font-mono text-purple-400">{typeof v === 'number' ? v.toFixed(3) : v}</div>
-                                                    </div>
-                                                ))}
-                                                <div className="col-span-2 bg-gradient-to-r from-purple-600 to-pink-600 p-4 rounded-xl mt-4">
-                                                    <div className="text-xs font-bold uppercase">Security Rating</div>
-                                                    <div className="text-4xl font-black">{calculateSecurityScore(selected.metrics)}%</div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div className="glass-card p-6 rounded-3xl">
-                                            <h3 className="text-xl font-bold mb-6">Top 5 Comparison</h3>
-                                            <div className="h-[300px]">
-                                                <ResponsiveContainer width="100%" height="100%">
-                                                    <BarChart data={Object.keys(metricInfo).map(k => {
-                                                        const row = { metric: k };
-                                                        filtered.slice(0, 5).forEach(c => row[c.id] = c.metrics[k]);
-                                                        return row;
-                                                    })}>
-                                                        <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" />
-                                                        <XAxis dataKey="metric" />
-                                                        <YAxis />
-                                                        <Tooltip contentStyle={{backgroundColor: '#000'}} />
-                                                        <Legend />
-                                                        {filtered.slice(0, 5).map((c, i) => <Bar key={c.id} dataKey={c.id} fill={['#a855f7','#ec4899','#8b5cf6','#d946ef','#c026d3'][i]} />)}
-                                                    </BarChart>
-                                                </ResponsiveContainer>
-                                            </div>
+                                    <div className="glass-card p-8 rounded-3xl space-y-8">
+                                        <h2 className="text-2xl font-bold border-l-4 border-purple-500 pl-4">{selected.name}</h2>
+                                        <div className="h-[400px]">
+                                            <ResponsiveContainer width="100%" height="100%">
+                                                <RadarChart cx="50%" cy="50%" outerRadius="80%" data={[
+                                                    { m: 'NL', v: selected.metrics.NL },
+                                                    { m: 'SAC', v: selected.metrics.SAC * 200 },
+                                                    { m: 'BIC_NL', v: selected.metrics.BIC_NL },
+                                                    { m: 'AD', v: selected.metrics.AD * 10 },
+                                                    { m: 'CI', v: selected.metrics.CI * 100 }
+                                                ]}>
+                                                    <PolarGrid stroke="#ffffff20" />
+                                                    <PolarAngleAxis dataKey="m" tick={{fill: '#94a3b8', fontSize: 12}} />
+                                                    <Radar name="Metrics" dataKey="v" stroke="#a855f7" fill="#a855f7" fillOpacity={0.4} />
+                                                    <Tooltip contentStyle={{backgroundColor: '#000', border: 'none', borderRadius: '10px'}} />
+                                                </RadarChart>
+                                            </ResponsiveContainer>
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="glass-card p-8 rounded-3xl space-y-6">
-                                        <div className="flex gap-4 mb-4">
-                                            <button onClick={() => setMode('text')} className={`flex-1 p-3 rounded-xl border ${mode === 'text' ? 'bg-purple-600 border-purple-400' : 'border-white/10'}`}>Text Mode</button>
-                                            <button onClick={() => setMode('hex')} className={`flex-1 p-3 rounded-xl border ${mode === 'hex' ? 'bg-purple-600 border-purple-400' : 'border-white/10'}`}>Hex Mode</button>
-                                        </div>
-                                        <textarea className="w-full bg-black/40 p-4 rounded-xl border border-white/10 font-mono text-purple-300" rows="4" placeholder={mode==='text'?'Ketik teks...':'Input Hex (e.g. 48 65 6c 6c 6f)'} value={input} onChange={e => setInput(e.target.value)} />
-                                        <div className="flex gap-4">
-                                            <button onClick={() => handleProcess('enc')} className="flex-1 bg-green-600 py-3 rounded-xl font-black">ENCRYPT</button>
-                                            <button onClick={() => handleProcess('dec')} className="flex-1 bg-blue-600 py-3 rounded-xl font-black">DECRYPT</button>
-                                        </div>
-                                        <div className="space-y-4 pt-4 border-t border-white/10">
-                                            <div>
-                                                <label className="text-[10px] font-bold text-slate-500 uppercase">Output Hex</label>
-                                                <div className="p-4 bg-black/60 rounded-xl font-mono text-green-400 break-all border border-white/5">{outputHex || '---'}</div>
+                                    <div className="space-y-8 animate-in fade-in duration-500">
+                                        {/* Affine Matrix View */}
+                                        <div className="glass-card p-6 rounded-3xl">
+                                            <h3 className="text-xl font-bold mb-4 text-purple-400">8x8 Affine Matrix</h3>
+                                            <div className="inline-block bg-black/40 p-4 rounded-xl border border-white/5">
+                                                {selected.matrix.map((row, i) => (
+                                                    <div key={i} className="flex gap-4 font-mono text-xl">
+                                                        {row.map((bit, j) => (
+                                                            <span key={j} className={bit === 1 ? "text-purple-400 font-bold" : "text-slate-700"}>{bit}</span>
+                                                        ))}
+                                                    </div>
+                                                ))}
                                             </div>
-                                            <div>
-                                                <label className="text-[10px] font-bold text-slate-500 uppercase">Output Text</label>
-                                                <div className="p-4 bg-black/60 rounded-xl font-mono text-purple-400 break-all border border-white/5">{outputText || '---'}</div>
+                                        </div>
+
+                                        {/* S-Box Table View */}
+                                        <div className="glass-card p-6 rounded-3xl">
+                                            <h3 className="text-xl font-bold mb-4 text-pink-400">S-Box Lookup Table (Hex)</h3>
+                                            <div className="overflow-x-auto">
+                                                <table className="w-full font-mono text-xs border-collapse">
+                                                    <thead>
+                                                        <tr>
+                                                            <th className="p-2 bg-white/5">-</th>
+                                                            {Array.from({length: 16}).map((_, i) => <th key={i} className="p-2 bg-white/5 text-purple-400">{i.toString(16).toUpperCase()}</th>)}
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {Array.from({length: 16}).map((_, row) => (
+                                                            <tr key={row}>
+                                                                <td className="p-2 bg-white/5 text-purple-400 font-bold text-center">{row.toString(16).toUpperCase()}</td>
+                                                                {Array.from({length: 16}).map((_, col) => {
+                                                                    const val = currentSbox[row * 16 + col];
+                                                                    return <td key={col} className="p-2 border border-white/5 text-center hover:bg-purple-600 transition cursor-default">
+                                                                        {val !== undefined ? val.toString(16).padStart(2, '0').toUpperCase() : '--'}
+                                                                    </td>
+                                                                })}
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </table>
                                             </div>
                                         </div>
                                     </div>
