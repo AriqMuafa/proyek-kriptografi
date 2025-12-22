@@ -1,0 +1,2314 @@
+{
+  "metadata": {
+    "generated_at": "2025-12-22 18:21:19",
+    "total_sboxes": 128,
+    "execution_time": "1032.45s",
+    "description": "Complete S-box Analysis with 10 Cryptographic Metrics"
+  },
+  "candidates": [
+    {
+      "id": "AES_STD",
+      "name": "AES Standard (FIPS 197)",
+      "type": "standard",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50488,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.5046,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.009480000000000044
+    },
+    {
+      "id": "K1",
+      "name": "K1 (Paper)",
+      "type": "paper",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50317,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50572,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.008889999999999953
+    },
+    {
+      "id": "K2",
+      "name": "K2 (Paper)",
+      "type": "paper",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50317,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50572,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.008889999999999953
+    },
+    {
+      "id": "K3",
+      "name": "K3 (Paper)",
+      "type": "paper",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50317,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50572,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.008889999999999953
+    },
+    {
+      "id": "K5",
+      "name": "K5 (Paper)",
+      "type": "paper",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50317,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50572,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.008889999999999953
+    },
+    {
+      "id": "K6",
+      "name": "K6 (Paper)",
+      "type": "paper",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50098,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50265,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.003630000000000022
+    },
+    {
+      "id": "K7",
+      "name": "K7 (Paper)",
+      "type": "paper",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50439,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50098,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.005369999999999986
+    },
+    {
+      "id": "K9",
+      "name": "K9 (Paper)",
+      "type": "paper",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50317,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50572,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.008889999999999953
+    },
+    {
+      "id": "K10",
+      "name": "K10 (Paper)",
+      "type": "paper",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.5144,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50209,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.016490000000000005
+    },
+    {
+      "id": "K11",
+      "name": "K11 (Paper)",
+      "type": "paper",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50708,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50237,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.009449999999999958
+    },
+    {
+      "id": "K12",
+      "name": "K12 (Paper)",
+      "type": "paper",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.49585,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.49902,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.005129999999999968
+    },
+    {
+      "id": "K13",
+      "name": "K13 (Paper)",
+      "type": "paper",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50488,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.5046,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.009480000000000044
+    },
+    {
+      "id": "K14",
+      "name": "K14 (Paper)",
+      "type": "paper",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50439,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50098,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.005369999999999986
+    },
+    {
+      "id": "K15",
+      "name": "K15 (Paper)",
+      "type": "paper",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50781,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.5046,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.012410000000000032
+    },
+    {
+      "id": "K16",
+      "name": "K16 (Paper)",
+      "type": "paper",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50488,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.5046,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.009480000000000044
+    },
+    {
+      "id": "K17",
+      "name": "K17 (Paper)",
+      "type": "paper",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50317,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50572,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.008889999999999953
+    },
+    {
+      "id": "K19",
+      "name": "K19 (Paper)",
+      "type": "paper",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.51562,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.49819,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.017429999999999946
+    },
+    {
+      "id": "K20",
+      "name": "K20 (Paper)",
+      "type": "paper",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.5144,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50209,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.016490000000000005
+    },
+    {
+      "id": "K21",
+      "name": "K21 (Paper)",
+      "type": "paper",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.51562,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.49819,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.017429999999999946
+    },
+    {
+      "id": "K22",
+      "name": "K22 (Paper)",
+      "type": "paper",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50708,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50237,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.009449999999999958
+    },
+    {
+      "id": "K44",
+      "name": "K44 (Proposed Best)",
+      "type": "proposed",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50073,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50237,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.0030999999999999917
+    },
+    {
+      "id": "K81",
+      "name": "K81 (Paper)",
+      "type": "paper",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50439,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50098,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.005369999999999986
+    },
+    {
+      "id": "K111",
+      "name": "K111 (Paper)",
+      "type": "paper",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50415,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.49902,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.005129999999999968
+    },
+    {
+      "id": "K127",
+      "name": "K127 (Paper)",
+      "type": "paper",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.4939,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50572,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.011819999999999942
+    },
+    {
+      "id": "K128",
+      "name": "K128 (Paper)",
+      "type": "paper",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.4939,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50572,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.011819999999999942
+    },
+    {
+      "id": "K_Rand1",
+      "name": "Random Candidate #1",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50415,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50272,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.006869999999999932
+    },
+    {
+      "id": "K_Rand2",
+      "name": "Random Candidate #2",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50806,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50146,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.009519999999999973
+    },
+    {
+      "id": "K_Rand3",
+      "name": "Random Candidate #3",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50391,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.49819,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.005719999999999947
+    },
+    {
+      "id": "K_Rand4",
+      "name": "Random Candidate #4",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.49365,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50544,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.011790000000000023
+    },
+    {
+      "id": "K_Rand5",
+      "name": "Random Candidate #5",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50342,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.49979,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.0036299999999999666
+    },
+    {
+      "id": "K_Rand6",
+      "name": "Random Candidate #6",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.49731,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50181,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.004500000000000004
+    },
+    {
+      "id": "K_Rand7",
+      "name": "Random Candidate #7",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.49878,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.49909,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.0021300000000000208
+    },
+    {
+      "id": "K_Rand8",
+      "name": "Random Candidate #8",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50317,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.49909,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.004080000000000028
+    },
+    {
+      "id": "K_Rand9",
+      "name": "Random Candidate #9",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50513,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.5014,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.006529999999999925
+    },
+    {
+      "id": "K_Rand10",
+      "name": "Random Candidate #10",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.49487,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.49902,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.006110000000000004
+    },
+    {
+      "id": "K_Rand11",
+      "name": "Random Candidate #11",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50073,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50216,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.002890000000000059
+    },
+    {
+      "id": "K_Rand12",
+      "name": "Random Candidate #12",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.5,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.49888,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.0011200000000000099
+    },
+    {
+      "id": "K_Rand13",
+      "name": "Random Candidate #13",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50146,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.49491,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.00655
+    },
+    {
+      "id": "K_Rand14",
+      "name": "Random Candidate #14",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.48975,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50558,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.01583000000000001
+    },
+    {
+      "id": "K_Rand15",
+      "name": "Random Candidate #15",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.49902,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50223,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.003209999999999935
+    },
+    {
+      "id": "K_Rand16",
+      "name": "Random Candidate #16",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50488,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50363,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.008510000000000018
+    },
+    {
+      "id": "K_Rand17",
+      "name": "Random Candidate #17",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50635,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.49972,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.006629999999999969
+    },
+    {
+      "id": "K_Rand18",
+      "name": "Random Candidate #18",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50562,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50251,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.00812999999999997
+    },
+    {
+      "id": "K_Rand19",
+      "name": "Random Candidate #19",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50464,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.5014,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.006039999999999934
+    },
+    {
+      "id": "K_Rand20",
+      "name": "Random Candidate #20",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50439,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50439,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.00878000000000001
+    },
+    {
+      "id": "K_Rand21",
+      "name": "Random Candidate #21",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.5022,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.503,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.005199999999999982
+    },
+    {
+      "id": "K_Rand22",
+      "name": "Random Candidate #22",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50342,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50314,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.00656000000000001
+    },
+    {
+      "id": "K_Rand23",
+      "name": "Random Candidate #23",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50537,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50146,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.006830000000000003
+    },
+    {
+      "id": "K_Rand24",
+      "name": "Random Candidate #24",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50171,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.5014,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.003109999999999946
+    },
+    {
+      "id": "K_Rand25",
+      "name": "Random Candidate #25",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.5,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.49874,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.0012599999999999834
+    },
+    {
+      "id": "K_Rand26",
+      "name": "Random Candidate #26",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.49951,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50209,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.0025800000000000267
+    },
+    {
+      "id": "K_Rand27",
+      "name": "Random Candidate #27",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50171,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.49895,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.0027599999999999847
+    },
+    {
+      "id": "K_Rand28",
+      "name": "Random Candidate #28",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50854,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50202,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.010560000000000014
+    },
+    {
+      "id": "K_Rand29",
+      "name": "Random Candidate #29",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.49878,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50216,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.0033800000000000496
+    },
+    {
+      "id": "K_Rand30",
+      "name": "Random Candidate #30",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.49219,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50195,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.009759999999999991
+    },
+    {
+      "id": "K_Rand31",
+      "name": "Random Candidate #31",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50244,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.49986,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.002579999999999971
+    },
+    {
+      "id": "K_Rand32",
+      "name": "Random Candidate #32",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50732,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50342,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.010739999999999972
+    },
+    {
+      "id": "K_Rand33",
+      "name": "Random Candidate #33",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50098,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.5014,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.0023799999999999377
+    },
+    {
+      "id": "K_Rand34",
+      "name": "Random Candidate #34",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50317,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.5014,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.004569999999999963
+    },
+    {
+      "id": "K_Rand35",
+      "name": "Random Candidate #35",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50439,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.503,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.007390000000000008
+    },
+    {
+      "id": "K_Rand36",
+      "name": "Random Candidate #36",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50854,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50181,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.01034999999999997
+    },
+    {
+      "id": "K_Rand37",
+      "name": "Random Candidate #37",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50488,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50153,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.006410000000000027
+    },
+    {
+      "id": "K_Rand38",
+      "name": "Random Candidate #38",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.5061,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50446,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.010560000000000014
+    },
+    {
+      "id": "K_Rand39",
+      "name": "Random Candidate #39",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.49707,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50391,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.006839999999999957
+    },
+    {
+      "id": "K_Rand40",
+      "name": "Random Candidate #40",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50098,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50286,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.0038399999999999546
+    },
+    {
+      "id": "K_Rand41",
+      "name": "Random Candidate #41",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50073,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50021,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.0009400000000000519
+    },
+    {
+      "id": "K_Rand42",
+      "name": "Random Candidate #42",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50171,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50153,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.0032400000000000206
+    },
+    {
+      "id": "K_Rand43",
+      "name": "Random Candidate #43",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50854,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50398,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.012519999999999976
+    },
+    {
+      "id": "K_Rand44",
+      "name": "Random Candidate #44",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50342,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50084,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.0042599999999999305
+    },
+    {
+      "id": "K_Rand45",
+      "name": "Random Candidate #45",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50903,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50188,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.010909999999999975
+    },
+    {
+      "id": "K_Rand46",
+      "name": "Random Candidate #46",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50537,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50272,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.00808999999999993
+    },
+    {
+      "id": "K_Rand47",
+      "name": "Random Candidate #47",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.49854,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50209,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.003550000000000053
+    },
+    {
+      "id": "K_Rand48",
+      "name": "Random Candidate #48",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50195,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.49958,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.0023699999999999832
+    },
+    {
+      "id": "K_Rand49",
+      "name": "Random Candidate #49",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50244,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50377,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.006210000000000049
+    },
+    {
+      "id": "K_Rand50",
+      "name": "Random Candidate #50",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.49927,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.49791,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.002819999999999989
+    },
+    {
+      "id": "K_Rand51",
+      "name": "Random Candidate #51",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50366,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.49937,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.004290000000000016
+    },
+    {
+      "id": "K_Rand52",
+      "name": "Random Candidate #52",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50269,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50146,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.004149999999999987
+    },
+    {
+      "id": "K_Rand53",
+      "name": "Random Candidate #53",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.49536,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.5016,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.006240000000000023
+    },
+    {
+      "id": "K_Rand54",
+      "name": "Random Candidate #54",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.49902,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50119,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.0021700000000000053
+    },
+    {
+      "id": "K_Rand55",
+      "name": "Random Candidate #55",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.49878,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.49965,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.0015700000000000158
+    },
+    {
+      "id": "K_Rand56",
+      "name": "Random Candidate #56",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50293,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50258,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.005510000000000015
+    },
+    {
+      "id": "K_Rand57",
+      "name": "Random Candidate #57",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.49878,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50544,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.006659999999999999
+    },
+    {
+      "id": "K_Rand58",
+      "name": "Random Candidate #58",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.49438,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50328,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.008899999999999963
+    },
+    {
+      "id": "K_Rand59",
+      "name": "Random Candidate #59",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50024,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50516,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.005400000000000071
+    },
+    {
+      "id": "K_Rand60",
+      "name": "Random Candidate #60",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50806,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50607,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.014129999999999976
+    },
+    {
+      "id": "K_Rand61",
+      "name": "Random Candidate #61",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50269,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50209,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.0047800000000000065
+    },
+    {
+      "id": "K_Rand62",
+      "name": "Random Candidate #62",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50537,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50153,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.006900000000000017
+    },
+    {
+      "id": "K_Rand63",
+      "name": "Random Candidate #63",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50464,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50007,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.004709999999999992
+    },
+    {
+      "id": "K_Rand64",
+      "name": "Random Candidate #64",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50146,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.49881,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.002650000000000041
+    },
+    {
+      "id": "K_Rand65",
+      "name": "Random Candidate #65",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50366,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.5067,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.010360000000000036
+    },
+    {
+      "id": "K_Rand66",
+      "name": "Random Candidate #66",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50439,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.5037,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.008090000000000042
+    },
+    {
+      "id": "K_Rand67",
+      "name": "Random Candidate #67",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50146,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.4993,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.0021599999999999953
+    },
+    {
+      "id": "K_Rand68",
+      "name": "Random Candidate #68",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50415,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50084,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.004989999999999939
+    },
+    {
+      "id": "K_Rand69",
+      "name": "Random Candidate #69",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50513,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.49937,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.005759999999999987
+    },
+    {
+      "id": "K_Rand70",
+      "name": "Random Candidate #70",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50073,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.49895,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.0017800000000000038
+    },
+    {
+      "id": "K_Rand71",
+      "name": "Random Candidate #71",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.49805,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.49951,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.0024399999999999977
+    },
+    {
+      "id": "K_Rand72",
+      "name": "Random Candidate #72",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50122,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50063,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.0018500000000000183
+    },
+    {
+      "id": "K_Rand73",
+      "name": "Random Candidate #73",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50342,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50656,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.009979999999999989
+    },
+    {
+      "id": "K_Rand74",
+      "name": "Random Candidate #74",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50684,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.49895,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.007889999999999953
+    },
+    {
+      "id": "K_Rand75",
+      "name": "Random Candidate #75",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50415,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50495,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.009099999999999997
+    },
+    {
+      "id": "K_Rand76",
+      "name": "Random Candidate #76",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50269,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50084,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.003529999999999922
+    },
+    {
+      "id": "K_Rand77",
+      "name": "Random Candidate #77",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.4939,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50216,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.008260000000000045
+    },
+    {
+      "id": "K_Rand78",
+      "name": "Random Candidate #78",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50366,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.49958,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.0040799999999999725
+    },
+    {
+      "id": "K_Rand79",
+      "name": "Random Candidate #79",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50024,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50223,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.0024699999999999722
+    },
+    {
+      "id": "K_Rand80",
+      "name": "Random Candidate #80",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.49951,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50258,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.003070000000000017
+    },
+    {
+      "id": "K_Rand81",
+      "name": "Random Candidate #81",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50244,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50091,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.003349999999999964
+    },
+    {
+      "id": "K_Rand82",
+      "name": "Random Candidate #82",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50317,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50335,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.00651999999999997
+    },
+    {
+      "id": "K_Rand83",
+      "name": "Random Candidate #83",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.5061,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50314,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.009240000000000026
+    },
+    {
+      "id": "K_Rand84",
+      "name": "Random Candidate #84",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.49609,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50558,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.009490000000000054
+    },
+    {
+      "id": "K_Rand85",
+      "name": "Random Candidate #85",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50195,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50258,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.004530000000000034
+    },
+    {
+      "id": "K_Rand86",
+      "name": "Random Candidate #86",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50488,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50181,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.006689999999999974
+    },
+    {
+      "id": "K_Rand87",
+      "name": "Random Candidate #87",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.5061,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.49874,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.007359999999999978
+    },
+    {
+      "id": "K_Rand88",
+      "name": "Random Candidate #88",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.49951,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.5053,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.005789999999999962
+    },
+    {
+      "id": "K_Rand89",
+      "name": "Random Candidate #89",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.49854,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.49965,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.0018100000000000338
+    },
+    {
+      "id": "K_Rand90",
+      "name": "Random Candidate #90",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50464,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50126,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.005900000000000016
+    },
+    {
+      "id": "K_Rand91",
+      "name": "Random Candidate #91",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50952,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50216,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.011680000000000024
+    },
+    {
+      "id": "K_Rand92",
+      "name": "Random Candidate #92",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50439,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50314,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.007530000000000037
+    },
+    {
+      "id": "K_Rand93",
+      "name": "Random Candidate #93",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.49976,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.49895,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.0012900000000000134
+    },
+    {
+      "id": "K_Rand94",
+      "name": "Random Candidate #94",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50049,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50426,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.004750000000000032
+    },
+    {
+      "id": "K_Rand95",
+      "name": "Random Candidate #95",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.5022,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50035,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.002549999999999941
+    },
+    {
+      "id": "K_Rand96",
+      "name": "Random Candidate #96",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50781,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50167,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.009479999999999933
+    },
+    {
+      "id": "K_Rand97",
+      "name": "Random Candidate #97",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50391,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50279,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.006699999999999928
+    },
+    {
+      "id": "K_Rand98",
+      "name": "Random Candidate #98",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.49414,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50286,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.00871999999999995
+    },
+    {
+      "id": "K_Rand99",
+      "name": "Random Candidate #99",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50171,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50509,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.006800000000000028
+    },
+    {
+      "id": "K_Rand100",
+      "name": "Random Candidate #100",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50464,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50314,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.007780000000000009
+    },
+    {
+      "id": "K_Rand101",
+      "name": "Random Candidate #101",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50488,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50112,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.006000000000000005
+    },
+    {
+      "id": "K_Rand102",
+      "name": "Random Candidate #102",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50391,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.50153,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 6
+      },
+      "score": 0.00544
+    },
+    {
+      "id": "K_Rand103",
+      "name": "Random Candidate #103",
+      "type": "generated",
+      "metrics": {
+        "NL": 112,
+        "SAC": 0.50024,
+        "BIC_NL": 112,
+        "BIC_SAC": 0.5046,
+        "LAP": 0.125,
+        "DAP": 0.015625,
+        "DU": 4,
+        "AD": 7,
+        "TO": 0.125,
+        "CI": 5
+      },
+      "score": 0.0048400000000000665
+    }
+  ]
+}
