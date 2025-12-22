@@ -11,7 +11,7 @@ app = FastAPI()
 
 # --- KONFIGURASI PATH ---
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-JSON_PATH = os.path.join(BASE_DIR, 'sbox_data_full.json')
+JSON_PATH = os.path.join(BASE_DIR, 'sbox_analysis_complete.json')
 
 # --- LOAD DATA JSON ---
 try:
