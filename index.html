@@ -16,6 +16,9 @@
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; }
         ::-webkit-scrollbar-thumb { background: #c7c7c7; border-radius: 10px; }
+        /* Loading Spinner */
+        .loader { border: 2px solid #f3f3f3; border-top: 2px solid #3498db; border-radius: 50%; width: 12px; height: 12px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="text-slate-800">
@@ -41,12 +44,6 @@
                     <i class="fas fa-filter text-slate-400 text-xs"></i>
                     <select class="bg-transparent text-xs font-medium text-slate-600 focus:outline-none">
                         <option>All Categories</option>
-                    </select>
-                </div>
-                <div class="flex items-center gap-2 px-3 border-l border-slate-200">
-                    <i class="fas fa-eye text-slate-400 text-xs"></i>
-                    <select class="bg-transparent text-xs font-medium text-slate-600 focus:outline-none">
-                        <option>Decimal (0-255)</option>
                     </select>
                 </div>
             </div>
@@ -106,15 +103,6 @@
                         <i class="fas fa-check-circle text-green-500 text-xs"></i>
                         <span class="text-[10px] font-medium text-green-700">Encryption Enabled</span>
                     </div>
-
-                    <div class="grid grid-cols-2 gap-2 relative z-10">
-                        <button class="bg-blue-600 hover:bg-blue-700 text-white text-[10px] py-2 rounded-lg font-bold transition flex items-center justify-center gap-2">
-                            <i class="fas fa-file-csv"></i> CSV
-                        </button>
-                        <button class="bg-purple-600 hover:bg-purple-700 text-white text-[10px] py-2 rounded-lg font-bold transition flex items-center justify-center gap-2">
-                            <i class="fas fa-code"></i> JSON
-                        </button>
-                    </div>
                 </div>
             </div>
 
@@ -124,25 +112,6 @@
                 </h3>
                 <div class="grid grid-cols-8 gap-1 aspect-square bg-slate-50 p-2 rounded-lg border border-slate-100" id="affineGrid">
                     </div>
-                <div class="mt-4 flex justify-between">
-                    <div class="bg-slate-50 px-3 py-2 rounded border border-slate-200 w-[48%]">
-                        <span class="block text-[9px] text-slate-400 font-bold">Active Bits</span>
-                        <span class="block text-sm font-bold text-slate-800">40</span>
-                    </div>
-                    <div class="bg-slate-50 px-3 py-2 rounded border border-slate-200 w-[48%]">
-                        <span class="block text-[9px] text-slate-400 font-bold">Inactive Bits</span>
-                        <span class="block text-sm font-bold text-slate-800">24</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white p-4 rounded-2xl shadow-sm border border-green-200 bg-green-50/30">
-                <h3 class="text-[10px] font-bold text-green-700 mb-1 flex items-center gap-1">
-                    <i class="fas fa-chart-line"></i> Optimal Performance Candidate
-                </h3>
-                <p class="font-bold text-sm text-slate-800">Random Candidate #76</p>
-                <p class="text-[10px] text-green-600 font-medium">Optimization Score: 0.0021</p>
-                <button class="w-full mt-3 bg-green-600 hover:bg-green-700 text-white text-[10px] py-1.5 rounded font-bold">View Analysis</button>
             </div>
 
         </aside>
@@ -185,7 +154,6 @@
                     <div class="flex-1 relative flex items-center justify-center min-h-[300px]">
                         <canvas id="radarChart"></canvas>
                     </div>
-                    <p class="text-[10px] text-slate-400 text-center mt-2 italic">Higher values indicate better performance across cryptographic properties</p>
                 </div>
             </div>
 
@@ -195,144 +163,104 @@
                     <h3 class="font-bold text-base text-slate-800">Comprehensive Metrics Evaluation</h3>
                 </div>
 
-                <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 mb-6 text-[10px] text-slate-500 grid grid-cols-2 gap-x-8 gap-y-1">
-                    <p><span class="font-bold text-slate-700">NL (Nonlinearity):</span> Resistance to linear cryptanalysis (Higher is better, target 112)</p>
-                    <p><span class="font-bold text-slate-700">SAC (Strict Avalanche):</span> Output change probability per input bit flip (Target 0.5)</p>
-                    <p><span class="font-bold text-slate-700">BIC-NL:</span> Bit Independence nonlinearity measure</p>
-                    <p><span class="font-bold text-slate-700">BIC-SAC:</span> Bit Independence avalanche criterion</p>
-                    <p><span class="font-bold text-slate-700">LAP (Linear Approx):</span> Maximum linear approximation probability (Lower is better)</p>
-                    <p><span class="font-bold text-slate-700">DAP (Differential Approx):</span> Maximum differential probability (Lower is better)</p>
-                    <p><span class="font-bold text-slate-700">DU (Diff. Uniformity):</span> Differential characteristic resistance (Lower is better)</p>
-                    <p><span class="font-bold text-slate-700">AD (Algebraic Degree):</span> Complexity of boolean function (Target 7)</p>
-                    <p><span class="font-bold text-slate-700">TO (Transparency Order):</span> Resistance to interpolation attacks</p>
-                    <p><span class="font-bold text-slate-700">CI (Correlation Immunity):</span> Independence from linear combinations (Target > 0)</p>
-                </div>
-
-                <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8" id="metricsGrid">
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4" id="metricsGrid">
                     </div>
-
-                <div class="h-64 w-full">
-                    <canvas id="barChart"></canvas>
-                </div>
-                <div class="flex justify-center gap-4 mt-4 text-[10px] font-medium text-slate-500">
-                    <span class="flex items-center gap-1"><div class="w-2 h-2 bg-blue-500 rounded-full"></div> AES Standard (FIPS 197)</span>
-                    <span class="flex items-center gap-1"><div class="w-2 h-2 bg-purple-500 rounded-full"></div> K1 (Paper Candidate)</span>
-                    <span class="flex items-center gap-1"><div class="w-2 h-2 bg-pink-500 rounded-full"></div> K2 (Paper Candidate)</span>
-                    <span class="flex items-center gap-1"><div class="w-2 h-2 bg-yellow-500 rounded-full"></div> K3 (Paper Candidate)</span>
-                </div>
-                <p class="text-center text-[9px] text-slate-400 mt-2">Comparative analysis of primary cryptographic strength indicators across 5 box candidates</p>
             </div>
 
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                <div class="flex items-center gap-2 mb-4">
-                    <i class="fas fa-lock text-indigo-600"></i>
-                    <h3 class="font-bold text-base text-slate-800">Text Encryption & Decryption Module</h3>
-                </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-                <div class="bg-indigo-50 border border-indigo-100 rounded-lg p-3 flex items-start gap-3 mb-6">
-                    <i class="fas fa-info-circle text-indigo-500 mt-0.5"></i>
-                    <p class="text-[10px] text-indigo-800">
-                        <span class="font-bold">Encryption Module Active</span><br>
-                        This feature is available for <span class="font-bold">AES Standard</span> and <span class="font-bold">K44 Optimized</span> S-boxes only. The encryption uses XOR key mixing with S-box substitution.
-                    </p>
-                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 h-full">
+                    <div class="flex items-center gap-2 mb-4 border-b border-slate-100 pb-3">
+                        <div class="bg-indigo-100 p-1.5 rounded text-indigo-600"><i class="fas fa-font"></i></div>
+                        <h3 class="font-bold text-base text-slate-800">Text Encryption</h3>
+                    </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div class="space-y-4">
                         <div class="flex bg-slate-100 rounded-lg p-1">
-                            <button id="btnModeEncrypt" onclick="setMode('encrypt')" class="flex-1 py-1.5 rounded-md text-xs font-bold text-white bg-green-600 shadow-sm transition"><i class="fas fa-lock text-[10px] mr-1"></i> Encrypt</button>
-                            <button id="btnModeDecrypt" onclick="setMode('decrypt')" class="flex-1 py-1.5 rounded-md text-xs font-bold text-slate-500 hover:text-slate-700 transition"><i class="fas fa-unlock text-[10px] mr-1"></i> Decrypt</button>
+                            <button id="btnTextEnc" onclick="setTextMode('encrypt')" class="flex-1 py-1.5 rounded-md text-xs font-bold text-white bg-indigo-600 shadow-sm transition">Encrypt</button>
+                            <button id="btnTextDec" onclick="setTextMode('decrypt')" class="flex-1 py-1.5 rounded-md text-xs font-bold text-slate-500 hover:text-slate-700 transition">Decrypt</button>
                         </div>
 
                         <div>
-                            <label class="block text-[10px] font-bold text-slate-600 mb-1"><i class="fas fa-key mr-1"></i> Secret Key (Minimum 4 chars)</label>
-                            <input type="text" id="textKey" placeholder="Enter your encryption key..." class="w-full p-2.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:border-indigo-500 outline-none">
+                            <label class="block text-[10px] font-bold text-slate-500 mb-1 uppercase">Secret Key</label>
+                            <input type="text" id="textKey" placeholder="Enter key..." class="w-full p-2.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:border-indigo-500 outline-none">
                         </div>
-
                         <div>
-                            <label class="block text-[10px] font-bold text-slate-600 mb-1">Plaintext Input</label>
-                            <textarea id="textInput" rows="4" placeholder="Enter your message to encrypt..." class="w-full p-2.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:border-indigo-500 outline-none font-mono"></textarea>
-                            <div class="text-right text-[9px] text-slate-400 mt-1">Character count: <span id="charCount">0</span></div>
+                            <label class="block text-[10px] font-bold text-slate-500 mb-1 uppercase">Message Input</label>
+                            <textarea id="textInput" rows="3" placeholder="Type message here..." class="w-full p-2.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:border-indigo-500 outline-none font-mono"></textarea>
                         </div>
 
-                        <button onclick="processText()" class="w-full bg-slate-500 hover:bg-slate-600 text-white text-xs font-bold py-2.5 rounded-lg shadow-sm transition flex items-center justify-center gap-2">
-                            <i class="fas fa-sync-alt"></i> Process Message
+                        <button onclick="processText()" class="w-full bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold py-2.5 rounded-lg shadow-sm transition">
+                            Process Text
                         </button>
-                    </div>
 
-                    <div class="flex flex-col h-full">
-                        <label class="block text-[10px] font-bold text-slate-600 mb-1">Encrypted Output (Hex/Base64)</label>
-                        <div id="textResult" class="flex-1 bg-green-50 border border-green-100 rounded-lg p-3 text-xs font-mono text-green-800 break-all overflow-y-auto max-h-[180px]">
-                            Encrypted text will appear here...
-                        </div>
-                        
-                        <div class="mt-4 bg-blue-50 border border-blue-100 rounded-lg p-3">
-                            <h4 class="text-[10px] font-bold text-blue-700 mb-1"><i class="fas fa-cog mr-1"></i> Encryption Algorithm Overview</h4>
-                            <ul class="text-[9px] text-blue-600 space-y-1 list-disc pl-3">
-                                <li>Step 1: Input text is converted to byte array</li>
-                                <li>Step 2: XOR operation with repeating key pattern</li>
-                                <li>Step 3: S-box Substitution for non-linearity</li>
-                                <li>Step 4: Base64/Hex encoding for safe transmission</li>
-                            </ul>
-                        </div>
-
-                        <div class="mt-2 flex justify-between items-center p-2 bg-white border border-slate-200 rounded-lg">
-                            <div>
-                                <span class="block text-[9px] text-slate-400 font-bold">Active S-box Configuration</span>
-                                <span id="activeSboxName" class="block text-[10px] font-bold text-slate-700">AES Standard (FIPS 197)</span>
+                        <div class="mt-2">
+                            <label class="block text-[10px] font-bold text-slate-500 mb-1 uppercase">Result</label>
+                            <div id="textResult" class="bg-green-50 border border-green-100 rounded-lg p-3 text-xs font-mono text-green-800 break-all h-24 overflow-y-auto">
+                                Waiting for input...
                             </div>
-                            <span class="bg-indigo-600 text-white text-[8px] px-2 py-1 rounded font-bold">Industry Standard</span>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="bg-orange-50 border border-orange-100 rounded-xl p-4 flex justify-between items-center">
-                <div>
-                    <h4 class="text-xs font-bold text-orange-800 mb-1"><i class="fas fa-bolt mr-1"></i> Quick Start Example</h4>
-                    <div class="flex gap-4 mt-2">
-                        <div class="bg-white px-2 py-1 rounded border border-orange-100">
-                            <span class="text-[8px] text-slate-400 block">Step 1: Enter Key</span>
-                            <span class="text-[10px] font-mono font-bold text-slate-700">CryptoKey2024</span>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 h-full">
+                    <div class="flex items-center gap-2 mb-4 border-b border-slate-100 pb-3">
+                        <div class="bg-pink-100 p-1.5 rounded text-pink-600"><i class="fas fa-image"></i></div>
+                        <h3 class="font-bold text-base text-slate-800">Image Encryption</h3>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="flex bg-slate-100 rounded-lg p-1">
+                            <button id="btnImgEnc" onclick="setImgMode('encrypt')" class="flex-1 py-1.5 rounded-md text-xs font-bold text-white bg-pink-600 shadow-sm transition">Encrypt</button>
+                            <button id="btnImgDec" onclick="setImgMode('decrypt')" class="flex-1 py-1.5 rounded-md text-xs font-bold text-slate-500 hover:text-slate-700 transition">Decrypt</button>
                         </div>
-                        <div class="bg-white px-2 py-1 rounded border border-orange-100">
-                            <span class="text-[8px] text-slate-400 block">Step 2: Enter Text</span>
-                            <span class="text-[10px] font-mono font-bold text-slate-700">Secret Message</span>
+
+                        <div class="relative border-2 border-dashed border-slate-200 rounded-xl bg-slate-50 hover:bg-slate-100 transition p-4 text-center group">
+                            <input type="file" id="imageInput" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                            <div class="flex flex-col items-center justify-center gap-2">
+                                <i class="fas fa-cloud-upload-alt text-2xl text-slate-300 group-hover:text-pink-400 transition"></i>
+                                <p class="text-[10px] font-bold text-slate-400 group-hover:text-slate-600">Click to upload image</p>
+                                <p id="fileName" class="text-[9px] text-pink-600 font-mono hidden">filename.png</p>
+                            </div>
+                        </div>
+
+                        <button onclick="processImage()" class="w-full bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold py-2.5 rounded-lg shadow-sm transition flex items-center justify-center gap-2">
+                            <span>Process Image</span>
+                            <div id="imgLoader" class="loader hidden"></div>
+                        </button>
+
+                        <div class="mt-2">
+                            <label class="block text-[10px] font-bold text-slate-500 mb-1 uppercase">Image Result</label>
+                            <div class="bg-slate-50 border border-slate-200 rounded-lg p-2 h-32 flex items-center justify-center overflow-hidden relative">
+                                <span id="imgPlaceholder" class="text-[9px] text-slate-400 italic">No image processed yet</span>
+                                <img id="imageResult" class="max-w-full max-h-full object-contain rounded shadow-sm hidden">
+                                <a id="downloadLink" href="#" download="result.png" class="absolute bottom-2 right-2 bg-white/80 p-1.5 rounded-full shadow hover:bg-white hidden text-slate-700">
+                                    <i class="fas fa-download text-xs"></i>
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="bg-white px-3 py-2 rounded border border-orange-100">
-                    <span class="text-[8px] text-slate-400 block">Step 3: Result</span>
-                    <span class="text-[10px] font-mono font-bold text-orange-600">7A 4B 1C ...</span>
-                </div>
+
             </div>
 
         </section>
     </main>
 
     <footer class="max-w-[1600px] mx-auto px-6 py-8 flex justify-between items-center text-[10px] text-slate-400 border-t border-slate-200 mt-6">
-        <p>S-box Cryptographic Analyzer © 2024</p>
-        <p>Generated: 2025-12-22 17:53:24<br>Academic Research Tool</p>
+        <p>S-box Cryptographic Analyzer © 2025</p>
+        <p>Using FastAPI & Tailwind</p>
     </footer>
 
     <script>
         let sboxData = [];
         let currentSboxId = "AES_STD";
-        let cryptoMode = 'encrypt';
+        let textMode = 'encrypt';
+        let imgMode = 'encrypt';
         let radarChartInstance = null;
-        let barChartInstance = null;
 
         // --- MOCKUP DATA FOR AFFINE MATRIX (Visual Only) ---
-        const affinePattern = [
-            1,0,0,0,1,1,1,1,
-            1,1,0,0,0,1,1,1,
-            1,1,1,0,0,0,1,1,
-            1,1,1,1,0,0,0,1,
-            1,1,1,1,1,0,0,0,
-            0,1,1,1,1,1,0,0,
-            0,0,1,1,1,1,1,0,
-            0,0,0,1,1,1,1,1
-        ];
+        const affinePattern = [1,0,0,0,1,1,1,1, 1,1,0,0,0,1,1,1, 1,1,1,0,0,0,1,1, 1,1,1,1,0,0,0,1, 1,1,1,1,1,0,0,0, 0,1,1,1,1,1,0,0, 0,0,1,1,1,1,1,0, 0,0,0,1,1,1,1,1];
 
         // --- INIT ---
         async function init() {
@@ -340,7 +268,6 @@
                 const response = await fetch('/api/data');
                 const data = await response.json();
                 sboxData = data.candidates;
-                
                 populateDropdown();
                 renderAffineGrid();
                 updateDashboard(currentSboxId);
@@ -351,7 +278,6 @@
         }
 
         // --- RENDER FUNCTIONS ---
-
         function populateDropdown() {
             const select = document.getElementById('sboxSelect');
             select.innerHTML = '';
@@ -380,21 +306,15 @@
             const candidate = sboxData.find(x => x.id === id);
             if (!candidate) return;
 
-            // Metadata Updates
             document.getElementById('metaName').innerText = candidate.name;
             document.getElementById('metaId').innerText = candidate.id;
-            document.getElementById('activeSboxName').innerText = candidate.name;
             document.getElementById('metaType').innerText = candidate.type.toUpperCase();
-            
-            // Side Card Values
             document.getElementById('cardNL').innerText = candidate.metrics.NL;
             document.getElementById('cardSAC').innerText = candidate.metrics.SAC.toFixed(4);
 
-            // Render Grids & Charts
             renderMetricsCards(candidate.metrics);
             updateCharts(candidate);
             
-            // Fetch S-box Values for Grid
             try {
                 const res = await fetch(`/api/sbox-values/${id}`);
                 const data = await res.json();
@@ -407,10 +327,9 @@
             grid.innerHTML = '';
             values.forEach(val => {
                 const div = document.createElement('div');
-                // Calculate color intensity (Blue scale)
                 const opacity = 0.1 + (val / 255) * 0.9;
-                const bgColor = `rgba(59, 130, 246, ${opacity})`; // Blue-500 base
-                const textColor = val > 128 ? 'white' : '#1e293b'; // Slate-800
+                const bgColor = `rgba(59, 130, 246, ${opacity})`; 
+                const textColor = val > 128 ? 'white' : '#1e293b';
 
                 div.className = 'flex items-center justify-center text-[7px] font-mono cursor-default hover:border hover:border-yellow-400 transition-colors';
                 div.style.backgroundColor = bgColor;
@@ -424,23 +343,17 @@
         function renderMetricsCards(m) {
             const container = document.getElementById('metricsGrid');
             container.innerHTML = '';
-
             const metricsDef = [
-                { k: 'NL', label: 'NONLINEARITY', target: 'Target: 112', icon: 'fa-shield-alt', color: 'text-purple-600', bg: 'bg-purple-100' },
-                { k: 'SAC', label: 'SAC', target: 'Target: 0.5', icon: 'fa-bolt', color: 'text-blue-600', bg: 'bg-blue-100' },
-                { k: 'BIC_NL', label: 'BIC-NL', target: 'Target: 112', icon: 'fa-cube', color: 'text-green-600', bg: 'bg-green-100' },
-                { k: 'BIC_SAC', label: 'BIC-SAC', target: 'Target: 0.5', icon: 'fa-chart-area', color: 'text-orange-600', bg: 'bg-orange-100' },
-                { k: 'LAP', label: 'LAP', target: 'Target: 0.0625', icon: 'fa-balance-scale', color: 'text-pink-600', bg: 'bg-pink-100' },
-                { k: 'DAP', label: 'DAP', target: 'Target: 0.015625', icon: 'fa-compress-arrows-alt', color: 'text-indigo-600', bg: 'bg-indigo-100' },
-                { k: 'DU', label: 'DIFF. UNIFORMITY', target: 'Target: 4', icon: 'fa-code-branch', color: 'text-blue-600', bg: 'bg-blue-100' },
-                { k: 'AD', label: 'ALGEBRAIC DEG.', target: 'Target: 7', icon: 'fa-superscript', color: 'text-purple-600', bg: 'bg-purple-100' },
-                { k: 'TO', label: 'TRANSPARENCY', target: 'Target: 0', icon: 'fa-eye', color: 'text-teal-600', bg: 'bg-teal-100' },
-                { k: 'CI', label: 'CORR. IMMUNITY', target: 'Target: >0', icon: 'fa-link', color: 'text-emerald-600', bg: 'bg-emerald-100' }
+                { k: 'NL', label: 'NONLINEARITY', target: '112', icon: 'fa-shield-alt', color: 'text-purple-600', bg: 'bg-purple-100' },
+                { k: 'SAC', label: 'SAC', target: '0.5', icon: 'fa-bolt', color: 'text-blue-600', bg: 'bg-blue-100' },
+                { k: 'BIC_NL', label: 'BIC-NL', target: '112', icon: 'fa-cube', color: 'text-green-600', bg: 'bg-green-100' },
+                { k: 'BIC_SAC', label: 'BIC-SAC', target: '0.5', icon: 'fa-chart-area', color: 'text-orange-600', bg: 'bg-orange-100' },
+                { k: 'LAP', label: 'LAP', target: 'Low', icon: 'fa-balance-scale', color: 'text-pink-600', bg: 'bg-pink-100' }
             ];
 
             metricsDef.forEach(def => {
                 let val = m[def.k];
-                if(typeof val === 'number' && val % 1 !== 0) val = val.toFixed(6);
+                if(typeof val === 'number' && val % 1 !== 0) val = val.toFixed(4);
                 
                 const html = `
                     <div class="bg-white p-3 rounded-xl border border-slate-100 hover:shadow-md transition">
@@ -449,23 +362,17 @@
                             <span class="text-[9px] font-bold text-slate-500 uppercase">${def.label}</span>
                         </div>
                         <div class="text-lg font-bold text-slate-800 leading-none mb-1">${val}</div>
-                        <div class="w-full bg-slate-100 h-1 rounded-full mb-1">
-                            <div class="h-1 rounded-full ${def.color.replace('text-', 'bg-')}" style="width: 75%"></div>
-                        </div>
-                        <div class="text-[8px] text-slate-400 font-medium">${def.target}</div>
+                        <div class="text-[8px] text-slate-400 font-medium">Target: ${def.target}</div>
                     </div>
                 `;
                 container.innerHTML += html;
             });
         }
 
-        // --- CHARTS ---
         function updateCharts(candidate) {
             const m = candidate.metrics;
-            
-            // RADAR CHART
             const radarCtx = document.getElementById('radarChart').getContext('2d');
-            const radarData = [m.NL/112, m.SAC*2, m.BIC_NL/112, m.BIC_SAC*2, 1-(m.LAP*4), 1-(m.DAP*10)]; // Normalized rough values
+            const radarData = [m.NL/112, m.SAC*2, m.BIC_NL/112, m.BIC_SAC*2, 1-(m.LAP*4), 1-(m.DAP*10)];
             
             if(radarChartInstance) radarChartInstance.destroy();
             radarChartInstance = new Chart(radarCtx, {
@@ -473,90 +380,49 @@
                 data: {
                     labels: ['NL', 'SAC', 'BIC-NL', 'BIC-SAC', 'LAP', 'DAP'],
                     datasets: [{
-                        label: 'Metric Distribution',
+                        label: 'Metrics',
                         data: radarData,
-                        backgroundColor: 'rgba(99, 102, 241, 0.4)', // Indigo-500 with opacity
+                        backgroundColor: 'rgba(99, 102, 241, 0.4)',
                         borderColor: '#6366f1',
-                        pointBackgroundColor: '#fff',
-                        pointBorderColor: '#6366f1',
                         borderWidth: 2
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    scales: {
-                        r: {
-                            angleLines: { color: '#e2e8f0' },
-                            grid: { color: '#e2e8f0' },
-                            pointLabels: { font: { size: 9, family: 'Inter' }, color: '#64748b' },
-                            ticks: { display: false, max: 1 }
-                        }
-                    },
+                    scales: { r: { ticks: { display: false, max: 1 } } },
                     plugins: { legend: { display: false } }
                 }
             });
-
-            // BAR CHART
-            const barCtx = document.getElementById('barChart').getContext('2d');
-            if(barChartInstance) barChartInstance.destroy();
-            
-            // Dummy comparison data for visual match
-            barChartInstance = new Chart(barCtx, {
-                type: 'bar',
-                data: {
-                    labels: ['NL', 'SAC', 'BIC-NL', 'BIC-SAC', 'LAP'],
-                    datasets: [
-                        { label: 'AES', data: [112, 0.50, 112, 0.50, 0.06], backgroundColor: '#3b82f6', borderRadius: 4 },
-                        { label: 'K1', data: [112, 0.50, 112, 0.50, 0.12], backgroundColor: '#a855f7', borderRadius: 4 },
-                        { label: 'K2', data: [112, 0.50, 112, 0.50, 0.12], backgroundColor: '#ec4899', borderRadius: 4 },
-                        { label: 'K3', data: [112, 0.50, 112, 0.50, 0.12], backgroundColor: '#eab308', borderRadius: 4 }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { font: {size: 9} } },
-                        x: { grid: { display: false }, ticks: { font: {size: 9} } }
-                    }
-                }
-            });
         }
 
-        // --- ENCRYPTION LOGIC ---
-        function setMode(mode) {
-            cryptoMode = mode;
-            const btnEnc = document.getElementById('btnModeEncrypt');
-            const btnDec = document.getElementById('btnModeDecrypt');
+        // --- TEXT ENCRYPTION LOGIC ---
+        function setTextMode(mode) {
+            textMode = mode;
+            const btnEnc = document.getElementById('btnTextEnc');
+            const btnDec = document.getElementById('btnTextDec');
+            
+            const activeClass = "flex-1 py-1.5 rounded-md text-xs font-bold text-white bg-indigo-600 shadow-sm transition";
+            const inactiveClass = "flex-1 py-1.5 rounded-md text-xs font-bold text-slate-500 hover:text-slate-700 transition";
             
             if(mode === 'encrypt') {
-                btnEnc.className = "flex-1 py-1.5 rounded-md text-xs font-bold text-white bg-green-600 shadow-sm transition";
-                btnDec.className = "flex-1 py-1.5 rounded-md text-xs font-bold text-slate-500 hover:text-slate-700 transition";
+                btnEnc.className = activeClass;
+                btnDec.className = inactiveClass;
             } else {
-                btnEnc.className = "flex-1 py-1.5 rounded-md text-xs font-bold text-slate-500 hover:text-slate-700 transition";
-                btnDec.className = "flex-1 py-1.5 rounded-md text-xs font-bold text-white bg-orange-500 shadow-sm transition";
+                btnEnc.className = inactiveClass;
+                btnDec.className = activeClass;
             }
         }
-
-        document.getElementById('textInput').addEventListener('input', function(e) {
-            document.getElementById('charCount').innerText = e.target.value.length;
-        });
 
         async function processText() {
             const text = document.getElementById('textInput').value;
             const key = document.getElementById('textKey').value;
             const resultBox = document.getElementById('textResult');
 
-            if(!text || !key) {
-                alert("Please enter both text and a secret key.");
-                return;
-            }
-
+            if(!text || !key) { alert("Please enter text and key."); return; }
             resultBox.innerText = "Processing...";
-            const endpoint = cryptoMode === 'encrypt' ? '/api/encrypt-text' : '/api/decrypt-text';
 
+            const endpoint = textMode === 'encrypt' ? '/api/encrypt-text' : '/api/decrypt-text';
             try {
                 const res = await fetch(endpoint, {
                     method: 'POST',
@@ -564,16 +430,78 @@
                     body: JSON.stringify({ text, key, sbox_id: currentSboxId })
                 });
                 const data = await res.json();
+                resultBox.innerText = data.error ? "Error: " + data.error : data.result;
+            } catch(e) { resultBox.innerText = "Network Error"; }
+        }
+
+        // --- IMAGE ENCRYPTION LOGIC (ADDED) ---
+        
+        // 1. Setup toggle buttons
+        function setImgMode(mode) {
+            imgMode = mode;
+            const btnEnc = document.getElementById('btnImgEnc');
+            const btnDec = document.getElementById('btnImgDec');
+            
+            const activeClass = "flex-1 py-1.5 rounded-md text-xs font-bold text-white bg-pink-600 shadow-sm transition";
+            const inactiveClass = "flex-1 py-1.5 rounded-md text-xs font-bold text-slate-500 hover:text-slate-700 transition";
+            
+            if(mode === 'encrypt') {
+                btnEnc.className = activeClass;
+                btnDec.className = inactiveClass;
+            } else {
+                btnEnc.className = inactiveClass;
+                btnDec.className = activeClass;
+            }
+        }
+
+        // 2. Handle File Selection
+        document.getElementById('imageInput').addEventListener('change', function(e) {
+            const fileName = e.target.files[0]?.name;
+            const nameDisplay = document.getElementById('fileName');
+            if(fileName) {
+                nameDisplay.innerText = fileName;
+                nameDisplay.classList.remove('hidden');
+            }
+        });
+
+        // 3. Process Function
+        async function processImage() {
+            const input = document.getElementById('imageInput');
+            const loader = document.getElementById('imgLoader');
+            const resultImg = document.getElementById('imageResult');
+            const placeholder = document.getElementById('imgPlaceholder');
+            const downloadLink = document.getElementById('downloadLink');
+
+            if(input.files.length === 0) { alert("Select an image first"); return; }
+            
+            // Show loading
+            loader.classList.remove('hidden');
+            
+            const formData = new FormData();
+            formData.append('file', input.files[0]);
+            formData.append('sbox_id', currentSboxId);
+            formData.append('mode', imgMode);
+
+            try {
+                const res = await fetch('/api/process-image', { method: 'POST', body: formData });
+                const data = await res.json();
                 
-                if(data.error) {
-                    resultBox.innerText = "Error: " + data.error;
-                    resultBox.classList.add('text-red-600');
+                if(data.status === 'success') {
+                    // Update UI with result
+                    resultImg.src = data.image_data;
+                    resultImg.classList.remove('hidden');
+                    placeholder.classList.add('hidden');
+                    
+                    // Setup download
+                    downloadLink.href = data.image_data;
+                    downloadLink.classList.remove('hidden');
                 } else {
-                    resultBox.innerText = data.result;
-                    resultBox.classList.remove('text-red-600');
+                    alert("Error: " + data.message);
                 }
-            } catch(e) {
-                resultBox.innerText = "Network Error";
+            } catch (e) { 
+                alert("Processing Failed"); 
+            } finally {
+                loader.classList.add('hidden');
             }
         }
 
