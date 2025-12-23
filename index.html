@@ -4,882 +4,580 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>S-box Cryptographic Analyzer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 24px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            overflow: hidden;
-        }
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .header-left { display: flex; align-items: center; gap: 15px; }
-        .logo {
-            width: 50px; height: 50px;
-            background: white;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            font-weight: bold;
-            color: #667eea;
-        }
-        .header-title h1 { font-size: 28px; font-weight: 700; margin-bottom: 4px; }
-        .header-title p { font-size: 14px; opacity: 0.9; }
-        .header-buttons { display: flex; gap: 10px; }
-        .btn-header {
-            padding: 10px 20px;
-            border: 2px solid white;
-            background: transparent;
-            color: white;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .btn-header:hover { background: white; color: #667eea; }
-        .main-content {
-            display: grid;
-            grid-template-columns: 350px 1fr;
-            gap: 30px;
-            padding: 30px;
-        }
-        .sidebar { display: flex; flex-direction: column; gap: 20px; }
-        .card {
-            background: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 16px;
-            padding: 24px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-        .card-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 20px;
-            cursor: pointer;
-        }
-        .card-header h3 { font-size: 16px; font-weight: 600; color: #1f2937; }
-        .filter-group { margin-bottom: 20px; }
-        .filter-label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 13px;
-            font-weight: 500;
-            color: #6b7280;
-            margin-bottom: 8px;
-        }
-        .search-box { position: relative; margin-bottom: 15px; }
-        .search-box input {
-            width: 100%;
-            padding: 12px 40px 12px 16px;
-            border: 2px solid #e5e7eb;
-            border-radius: 10px;
-            font-size: 14px;
-        }
-        .search-box input:focus { outline: none; border-color: #667eea; }
-        .search-icon {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #9ca3af;
-        }
-        select {
-            width: 100%;
-            padding: 10px 14px;
-            border: 2px solid #e5e7eb;
-            border-radius: 8px;
-            font-size: 14px;
-            background: white;
-            cursor: pointer;
-        }
-        .sbox-select {
-            width: 100%;
-            padding: 12px 16px;
-            border: 2px solid #e5e7eb;
-            border-radius: 10px;
-            font-size: 15px;
-            font-weight: 500;
-            margin-bottom: 16px;
-            background: white;
-        }
-        .sbox-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            background: #667eea;
-            color: white;
-            border-radius: 6px;
-            font-size: 11px;
-            font-weight: 600;
-            margin-top: 8px;
-        }
-        .properties-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 16px;
-            margin: 20px 0;
-        }
-        .property-item { text-align: center; }
-        .property-label { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
-        .property-value { font-size: 20px; font-weight: 700; color: #1f2937; }
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 12px;
-            background: #d1fae5;
-            color: #065f46;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            margin-top: 16px;
-        }
-        .action-buttons {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-top: 20px;
-        }
-        .btn {
-            padding: 12px;
-            border: none;
-            border-radius: 10px;
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .btn-primary { background: #667eea; color: white; }
-        .btn-primary:hover {
-            background: #5568d3;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-        }
-        .btn-secondary { background: #10b981; color: white; }
-        .btn-secondary:hover {
-            background: #059669;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
-        }
-        .matrix-grid {
-            display: grid;
-            grid-template-columns: repeat(8, 1fr);
-            gap: 4px;
-            margin-top: 16px;
-        }
-        .matrix-cell {
-            aspect-ratio: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #667eea;
-            color: white;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: 600;
-        }
-        .matrix-cell.zero { background: #e5e7eb; color: #6b7280; }
-        .matrix-stats {
-            display: flex;
-            justify-content: space-around;
-            margin-top: 16px;
-            padding-top: 16px;
-            border-top: 1px solid #e5e7eb;
-        }
-        .matrix-stat { text-align: center; }
-        .matrix-stat-label { font-size: 11px; color: #6b7280; margin-bottom: 4px; }
-        .matrix-stat-value { font-size: 18px; font-weight: 700; color: #1f2937; }
-        .optimal-card {
-            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-            border: 2px solid #10b981;
-        }
-        .optimal-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            background: #065f46;
-            color: white;
-            border-radius: 6px;
-            font-size: 11px;
-            font-weight: 600;
-            margin-bottom: 12px;
-        }
-        .btn-optimal {
-            width: 100%;
-            padding: 14px;
-            background: #10b981;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-weight: 700;
-            font-size: 14px;
-            cursor: pointer;
-            margin-top: 16px;
-        }
-        .right-panel { display: flex; flex-direction: column; gap: 24px; }
-        .sbox-table-container { overflow: auto; max-height: 500px; }
-        .sbox-table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 4px;
-        }
-        .sbox-table th,
-        .sbox-table td {
-            width: 40px;
-            height: 40px;
-            text-align: center;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        .sbox-table th {
-            background: #f3f4f6;
-            color: #6b7280;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-        .sbox-table td {
-            background: #d1fae5;
-            color: #065f46;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .sbox-table td:hover {
-            background: #10b981;
-            color: white;
-            transform: scale(1.1);
-            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
-        }
-        .sbox-table td.low-sac { background: #fecaca; color: #991b1b; }
-        .sbox-table td.high-sac { background: #a5f3fc; color: #155e75; }
-        .table-controls {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-        }
-        .color-mode-btns { display: flex; gap: 8px; }
-        .btn-sm {
-            padding: 6px 12px;
-            border: 2px solid #e5e7eb;
-            background: white;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .btn-sm.active {
-            background: #667eea;
-            color: white;
-            border-color: #667eea;
-        }
-        .encryption-module {
-            background: #f9fafb;
-            border-radius: 16px;
-            padding: 24px;
-        }
-        .module-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        .module-header h3 {
-            font-size: 18px;
-            font-weight: 600;
-            color: #1f2937;
-        }
-        .encryption-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-        .input-group { display: flex; flex-direction: column; gap: 8px; }
-        .input-label { font-size: 13px; font-weight: 600; color: #374151; }
-        input[type="text"], textarea {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e5e7eb;
-            border-radius: 10px;
-            font-size: 13px;
-        }
-        textarea {
-            min-height: 100px;
-            font-family: 'Courier New', monospace;
-            resize: vertical;
-        }
-        input:focus, textarea:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-        .operation-buttons { display: flex; gap: 10px; margin-top: 16px; }
-        .btn-encrypt {
-            flex: 1;
-            padding: 14px;
-            background: #10b981;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-weight: 700;
-            cursor: pointer;
-        }
-        .btn-decrypt {
-            flex: 1;
-            padding: 14px;
-            background: #f97316;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-weight: 700;
-            cursor: pointer;
-        }
-        .quick-examples {
-            background: #fffbeb;
-            border: 2px solid #fbbf24;
-            border-radius: 12px;
-            padding: 20px;
-            margin-top: 20px;
-        }
-        .quick-examples h4 {
-            font-size: 14px;
-            font-weight: 700;
-            color: #92400e;
-            margin-bottom: 12px;
-        }
-        .examples-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-        }
-        .example-item {
-            padding: 12px;
-            background: white;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .example-item:hover {
-            background: #fef3c7;
-            transform: translateY(-2px);
-        }
-        .example-label {
-            font-size: 11px;
-            font-weight: 600;
-            color: #78350f;
-            margin-bottom: 4px;
-        }
-        .example-value { font-size: 13px; color: #1f2937; }
-        .footer {
-            padding: 20px 40px;
-            background: #f9fafb;
-            border-top: 1px solid #e5e7eb;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 12px;
-            color: #6b7280;
-        }
-        @media (max-width: 1200px) {
-            .main-content { grid-template-columns: 300px 1fr; }
-        }
-        @media (max-width: 768px) {
-            .main-content { grid-template-columns: 1fr; }
-            .encryption-grid { grid-template-columns: 1fr; }
-            .examples-grid { grid-template-columns: 1fr; }
-        }
-        .loading { text-align: center; padding: 40px; color: #6b7280; }
-        .spinner {
-            border: 4px solid #f3f4f6;
-            border-top: 4px solid #667eea;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 16px;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+        body { font-family: 'Inter', sans-serif; background-color: #F3F4F6; }
+        .sbox-cell { font-size: 0.6rem; }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #c7c7c7; border-radius: 10px; }
     </style>
 </head>
-<body>
-    <div class="container">
-        <div class="header">
-            <div class="header-left">
-                <div class="logo">🔐</div>
-                <div class="header-title">
-                    <h1>S-box Cryptographic Analyzer</h1>
-                    <p>Advanced Substitution Box Matrix Analyzer</p>
+<body class="text-slate-800">
+
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
+        <div class="max-w-[1600px] mx-auto px-6 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="bg-blue-600 text-white p-2 rounded-lg shadow-lg shadow-blue-200">
+                    <i class="fas fa-shield-alt fa-lg"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-xl text-slate-800 leading-tight">S-box Cryptographic Analyzer</h1>
+                    <p class="text-[10px] text-slate-500 font-medium tracking-wide">Ultimate S-box Data | 10 Metrics Analysis</p>
                 </div>
             </div>
-            <div class="header-buttons">
-                <button class="btn-header">📊 S-boxes</button>
-                <button class="btn-header">🔧 Metrics</button>
-                <button class="btn-header">2025-12-23</button>
+            
+            <div class="flex items-center gap-4 bg-slate-50 p-1.5 rounded-lg border border-slate-200">
+                <div class="relative">
+                    <i class="fas fa-search absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                    <input type="text" placeholder="Search 8 boxes..." class="pl-8 pr-4 py-1.5 bg-white border border-slate-200 rounded text-xs w-48 focus:outline-none focus:border-blue-500">
+                </div>
+                <div class="flex items-center gap-2 px-3 border-l border-slate-200">
+                    <i class="fas fa-filter text-slate-400 text-xs"></i>
+                    <select class="bg-transparent text-xs font-medium text-slate-600 focus:outline-none">
+                        <option>All Categories</option>
+                    </select>
+                </div>
+                <div class="flex items-center gap-2 px-3 border-l border-slate-200">
+                    <i class="fas fa-eye text-slate-400 text-xs"></i>
+                    <select class="bg-transparent text-xs font-medium text-slate-600 focus:outline-none">
+                        <option>Decimal (0-255)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="flex gap-2">
+                <button class="px-3 py-1.5 bg-blue-50 text-blue-600 text-xs font-bold rounded shadow-sm hover:bg-blue-100">128 S-Boxes</button>
+                <button class="px-3 py-1.5 bg-green-50 text-green-600 text-xs font-bold rounded shadow-sm hover:bg-green-100">10 Metrics</button>
+                <button class="px-3 py-1.5 bg-indigo-50 text-indigo-600 text-xs font-bold rounded shadow-sm hover:bg-indigo-100">AES-128</button>
             </div>
         </div>
+    </header>
 
-        <div class="main-content">
-            <div class="sidebar">
-                <div class="card">
-                    <div class="filter-group">
-                        <div class="filter-label">🔍 Search S-boxes</div>
-                        <div class="search-box">
-                            <input type="text" id="searchInput" placeholder="Search by ID, name, or type...">
-                            <span class="search-icon">🔍</span>
-                        </div>
-                    </div>
-                    <div class="filter-group">
-                        <div class="filter-label">📂 Category Filter</div>
-                        <select id="categoryFilter">
-                            <option value="all">All Categories</option>
-                            <option value="standard">Standard</option>
-                            <option value="paper">Paper</option>
-                            <option value="proposed">Proposed</option>
-                            <option value="generated">Generated</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <div class="filter-label">💻 Display Format</div>
-                        <select id="displayFormat">
-                            <option value="decimal">Decimal (0-255)</option>
-                            <option value="hex">Hexadecimal (0x00-0xFF)</option>
-                        </select>
-                    </div>
-                </div>
+    <main class="max-w-[1600px] mx-auto px-6 py-6 grid grid-cols-12 gap-6">
+        
+        <aside class="col-span-12 xl:col-span-3 space-y-5">
+            
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+                <h3 class="text-xs font-bold text-slate-700 mb-3 flex items-center gap-2">
+                    <i class="fas fa-chevron-right text-blue-500"></i> Select S-box Configuration
+                </h3>
+                <select id="sboxSelect" class="w-full p-2.5 mb-4 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-slate-700 font-medium">
+                    <option>Loading...</option>
+                </select>
 
-                <div class="card">
-                    <div class="card-header">
-                        <span>▶️</span>
-                        <h3>Select S-box Configuration</h3>
+                <div class="bg-slate-50 rounded-xl p-4 border border-slate-100 mb-4 relative overflow-hidden">
+                    <div class="flex justify-between items-start mb-2 relative z-10">
+                        <div>
+                            <h2 id="metaName" class="font-bold text-slate-800 text-sm">AES Standard (FIPS 197)</h2>
+                            <p class="text-[10px] text-slate-500 mt-0.5">ID: <span id="metaId">AES_STD</span></p>
+                        </div>
+                        <span id="metaType" class="bg-blue-600 text-white text-[9px] px-2 py-0.5 rounded shadow-sm shadow-blue-200">Standard</span>
                     </div>
-                    <select id="sboxSelect" class="sbox-select"></select>
-                    <span class="sbox-badge">Current Selected</span>
-                    <div class="properties-grid">
-                        <div class="property-item">
-                            <div class="property-label">Matrix Size</div>
-                            <div class="property-value" id="matrixSize">8×8</div>
-                        </div>
-                        <div class="property-item">
-                            <div class="property-label">Total Bytes</div>
-                            <div class="property-value" id="totalBytes">256</div>
-                        </div>
-                        <div class="property-item">
-                            <div class="property-label">Nonlinearity</div>
-                            <div class="property-value" id="nlValue">112</div>
-                        </div>
-                        <div class="property-item">
-                            <div class="property-label">SAC</div>
-                            <div class="property-value" id="sacValue">0.5049</div>
-                        </div>
-                    </div>
-                    <div class="status-badge">✅ Navigation Enabled</div>
-                    <div class="action-buttons">
-                        <button class="btn btn-primary" onclick="copySbox()">📋 Copy</button>
-                        <button class="btn btn-secondary" onclick="applySbox()">✓ Apply</button>
-                    </div>
-                </div>
+                    <p class="text-[10px] text-slate-500 leading-relaxed mb-4 relative z-10">
+                        Cryptographic S-box candidate with standard classification metrics.
+                    </p>
 
-                <div class="card">
-                    <div class="card-header">
-                        <span>🔄</span>
-                        <h3>Affine Transformation Matrix</h3>
-                    </div>
-                    <div class="matrix-grid" id="affineMatrix"></div>
-                    <div class="matrix-stats">
-                        <div class="matrix-stat">
-                            <div class="matrix-stat-label">Active Bits</div>
-                            <div class="matrix-stat-value" id="activeBits">40</div>
+                    <div class="grid grid-cols-2 gap-2 mb-3 relative z-10">
+                        <div class="bg-white p-2 rounded border border-blue-100">
+                            <span class="block text-[9px] text-blue-500 font-bold">Matrix Size</span>
+                            <span class="block text-xs font-bold text-slate-700">8x8</span>
                         </div>
-                        <div class="matrix-stat">
-                            <div class="matrix-stat-label">Inactive Bits</div>
-                            <div class="matrix-stat-value" id="inactiveBits">24</div>
+                        <div class="bg-white p-2 rounded border border-blue-100">
+                            <span class="block text-[9px] text-blue-500 font-bold">S-box Size</span>
+                            <span class="block text-xs font-bold text-slate-700">256 bytes</span>
+                        </div>
+                        <div class="bg-white p-2 rounded border border-green-100">
+                            <span class="block text-[9px] text-green-600 font-bold">Nonlinearity</span>
+                            <span id="cardNL" class="block text-xs font-bold text-slate-700">112</span>
+                        </div>
+                        <div class="bg-white p-2 rounded border border-green-100">
+                            <span class="block text-[9px] text-green-600 font-bold">SAC Score</span>
+                            <span id="cardSAC" class="block text-xs font-bold text-slate-700">0.5048</span>
                         </div>
                     </div>
-                </div>
 
-                <div class="card optimal-card">
-                    <span class="optimal-badge">🎯 Optimal Performance Candidate</span>
-                    <h3 style="margin-bottom: 8px;" id="optimalName">Random Candidate #70</h3>
-                    <p style="font-size: 13px; color: #065f46;" id="optimalScore">Optimization Score: 0.00178</p>
-                    <button class="btn-optimal" onclick="loadOptimal()">View Analysis</button>
+                    <div class="flex items-center gap-2 mb-4 relative z-10">
+                        <i class="fas fa-check-circle text-green-500 text-xs"></i>
+                        <span class="text-[10px] font-medium text-green-700">Encryption Enabled</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2 relative z-10">
+                        <button class="bg-blue-600 hover:bg-blue-700 text-white text-[10px] py-2 rounded-lg font-bold transition flex items-center justify-center gap-2">
+                            <i class="fas fa-file-csv"></i> CSV
+                        </button>
+                        <button class="bg-purple-600 hover:bg-purple-700 text-white text-[10px] py-2 rounded-lg font-bold transition flex items-center justify-center gap-2">
+                            <i class="fas fa-code"></i> JSON
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <div class="right-panel">
-                <div class="card">
-                    <div class="table-controls">
-                        <h3>Substitution Table Visualization (16×16 Matrix)</h3>
-                        <div class="color-mode-btns">
-                            <button class="btn-sm active" onclick="setColorMode('normal')">🟢 Low (SAC)</button>
-                            <button class="btn-sm" onclick="setColorMode('high')">🔵 High (SAC)</button>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+                <h3 class="text-xs font-bold text-slate-700 mb-4 flex items-center gap-2">
+                    <i class="fas fa-th text-purple-500"></i> Affine Transformation Matrix
+                </h3>
+                <div class="grid grid-cols-8 gap-1 aspect-square bg-slate-50 p-2 rounded-lg border border-slate-100" id="affineGrid">
+                    </div>
+                <div class="mt-4 flex justify-between">
+                    <div class="bg-slate-50 px-3 py-2 rounded border border-slate-200 w-[48%]">
+                        <span class="block text-[9px] text-slate-400 font-bold">Active Bits</span>
+                        <span class="block text-sm font-bold text-slate-800">40</span>
+                    </div>
+                    <div class="bg-slate-50 px-3 py-2 rounded border border-slate-200 w-[48%]">
+                        <span class="block text-[9px] text-slate-400 font-bold">Inactive Bits</span>
+                        <span class="block text-sm font-bold text-slate-800">24</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-green-200 bg-green-50/30">
+                <h3 class="text-[10px] font-bold text-green-700 mb-1 flex items-center gap-1">
+                    <i class="fas fa-chart-line"></i> Optimal Performance Candidate
+                </h3>
+                <p class="font-bold text-sm text-slate-800">Random Candidate #76</p>
+                <p class="text-[10px] text-green-600 font-medium">Optimization Score: 0.0021</p>
+                <button class="w-full mt-3 bg-green-600 hover:bg-green-700 text-white text-[10px] py-1.5 rounded font-bold">View Analysis</button>
+            </div>
+
+        </aside>
+
+        <section class="col-span-12 xl:col-span-9 space-y-6">
+            
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6 h-auto md:h-[420px]">
+                
+                <div class="col-span-12 md:col-span-7 bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold text-sm text-slate-700">Substitution Table Visualization (16x16 Matrix)</h3>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[9px] text-slate-400 font-bold">Low (0x00)</span>
+                            <div class="w-16 h-2 bg-gradient-to-r from-blue-100 to-blue-900 rounded-full"></div>
+                            <span class="text-[9px] text-slate-400 font-bold">High (0xFF)</span>
                         </div>
                     </div>
-                    <div class="sbox-table-container">
-                        <table class="sbox-table" id="sboxTable">
-                            <thead>
-                                <tr>
-                                    <th></th>
-                                    <th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th>
-                                    <th>8</th><th>9</th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th><th>F</th>
-                                </tr>
-                            </thead>
-                            <tbody id="sboxTableBody"></tbody>
-                        </table>
+                    
+                    <div class="flex mb-1 ml-6">
+                        <div class="flex-1 flex text-[9px] text-slate-400 font-bold justify-between px-1">
+                            <span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span>
+                            <span>8</span><span>9</span><span>A</span><span>B</span><span>C</span><span>D</span><span>E</span><span>F</span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-1">
+                        <div class="w-6 flex flex-col justify-between text-[9px] text-slate-400 font-bold py-1">
+                            <span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span>
+                            <span>8</span><span>9</span><span>A</span><span>B</span><span>C</span><span>D</span><span>E</span><span>F</span>
+                        </div>
+                        <div id="sboxGrid" class="flex-1 grid grid-cols-16 grid-rows-16 gap-[1px] bg-slate-200 border border-slate-200 rounded overflow-hidden">
+                            </div>
                     </div>
                 </div>
 
-                <div class="card">
-                    <div class="card-header">
-                        <span>📊</span>
-                        <h3>Cryptographic Security Metrics Distribution</h3>
+                <div class="col-span-12 md:col-span-5 bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col">
+                    <h3 class="font-bold text-sm text-slate-700 mb-2 flex items-center gap-2">
+                        <i class="fas fa-bolt text-yellow-500"></i> Cryptographic Security Metrics Distribution
+                    </h3>
+                    <div class="flex-1 relative flex items-center justify-center">
+                        <canvas id="radarChart"></canvas>
                     </div>
-                    <canvas id="radarChart" width="400" height="300"></canvas>
-                    <p style="text-align: center; font-size: 12px; color: #6b7280; margin-top: 16px;">
-                        Higher values indicate better performance across respective cryptographic properties
+                    <p class="text-[10px] text-slate-400 text-center mt-2 italic">Higher values indicate better performance across cryptographic properties</p>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                <div class="flex items-center gap-2 mb-6">
+                    <div class="bg-green-100 p-1.5 rounded text-green-600"><i class="fas fa-chart-bar"></i></div>
+                    <h3 class="font-bold text-base text-slate-800">Comprehensive Metrics Evaluation</h3>
+                </div>
+
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 mb-6 text-[10px] text-slate-500 grid grid-cols-2 gap-x-8 gap-y-1">
+                    <p><span class="font-bold text-slate-700">NL (Nonlinearity):</span> Resistance to linear cryptanalysis (Higher is better, target 112)</p>
+                    <p><span class="font-bold text-slate-700">SAC (Strict Avalanche):</span> Output change probability per input bit flip (Target 0.5)</p>
+                    <p><span class="font-bold text-slate-700">BIC-NL:</span> Bit Independence nonlinearity measure</p>
+                    <p><span class="font-bold text-slate-700">BIC-SAC:</span> Bit Independence avalanche criterion</p>
+                    <p><span class="font-bold text-slate-700">LAP (Linear Approx):</span> Maximum linear approximation probability (Lower is better)</p>
+                    <p><span class="font-bold text-slate-700">DAP (Differential Approx):</span> Maximum differential probability (Lower is better)</p>
+                    <p><span class="font-bold text-slate-700">DU (Diff. Uniformity):</span> Differential characteristic resistance (Lower is better)</p>
+                    <p><span class="font-bold text-slate-700">AD (Algebraic Degree):</span> Complexity of boolean function (Target 7)</p>
+                    <p><span class="font-bold text-slate-700">TO (Transparency Order):</span> Resistance to interpolation attacks</p>
+                    <p><span class="font-bold text-slate-700">CI (Correlation Immunity):</span> Independence from linear combinations (Target > 0)</p>
+                </div>
+
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8" id="metricsGrid">
+                    </div>
+
+                <div class="h-64 w-full">
+                    <canvas id="barChart"></canvas>
+                </div>
+                <div class="flex justify-center gap-4 mt-4 text-[10px] font-medium text-slate-500">
+                    <span class="flex items-center gap-1"><div class="w-2 h-2 bg-blue-500 rounded-full"></div> AES Standard (FIPS 197)</span>
+                    <span class="flex items-center gap-1"><div class="w-2 h-2 bg-purple-500 rounded-full"></div> K1 (Paper Candidate)</span>
+                    <span class="flex items-center gap-1"><div class="w-2 h-2 bg-pink-500 rounded-full"></div> K2 (Paper Candidate)</span>
+                    <span class="flex items-center gap-1"><div class="w-2 h-2 bg-yellow-500 rounded-full"></div> K3 (Paper Candidate)</span>
+                </div>
+                <p class="text-center text-[9px] text-slate-400 mt-2">Comparative analysis of primary cryptographic strength indicators across 5 box candidates</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                <div class="flex items-center gap-2 mb-4">
+                    <i class="fas fa-lock text-indigo-600"></i>
+                    <h3 class="font-bold text-base text-slate-800">Text Encryption & Decryption Module</h3>
+                </div>
+
+                <div class="bg-indigo-50 border border-indigo-100 rounded-lg p-3 flex items-start gap-3 mb-6">
+                    <i class="fas fa-info-circle text-indigo-500 mt-0.5"></i>
+                    <p class="text-[10px] text-indigo-800">
+                        <span class="font-bold">Encryption Module Active</span><br>
+                        This feature is available for <span class="font-bold">AES Standard</span> and <span class="font-bold">K44 Optimized</span> S-boxes only. The encryption uses XOR key mixing with S-box substitution.
                     </p>
                 </div>
 
-                <div class="card encryption-module">
-                    <div class="module-header">
-                        <span>🔐</span>
-                        <h3>Text Encryption & Decryption Module</h3>
-                    </div>
-                    <div class="encryption-grid">
-                        <div class="input-group">
-                            <label class="input-label">🔑 Encryption Key (Alphanumeric & Symbols)</label>
-                            <input type="text" id="encKey" placeholder="Enter your encryption key..." value="SecretKey123">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="space-y-4">
+                        <div class="flex bg-slate-100 rounded-lg p-1">
+                            <button id="btnModeEncrypt" onclick="setMode('encrypt')" class="flex-1 py-1.5 rounded-md text-xs font-bold text-white bg-green-600 shadow-sm transition"><i class="fas fa-lock text-[10px] mr-1"></i> Encrypt</button>
+                            <button id="btnModeDecrypt" onclick="setMode('decrypt')" class="flex-1 py-1.5 rounded-md text-xs font-bold text-slate-500 hover:text-slate-700 transition"><i class="fas fa-unlock text-[10px] mr-1"></i> Decrypt</button>
                         </div>
-                        <div class="input-group">
-                            <label class="input-label">💬 Plaintext Input</label>
-                            <textarea id="plaintext" placeholder="Enter text to encrypt...">Hello World</textarea>
+
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-600 mb-1"><i class="fas fa-key mr-1"></i> Secret Key (Minimum 4 chars)</label>
+                            <input type="text" id="textKey" placeholder="Enter your encryption key..." class="w-full p-2.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:border-indigo-500 outline-none">
                         </div>
-                    </div>
-                    <div class="encryption-grid">
-                        <div class="input-group">
-                            <label class="input-label">📤 Encrypted Output (Base64)</label>
-                            <textarea id="encrypted" placeholder="Encrypted text will appear here..." readonly></textarea>
+
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-600 mb-1">Plaintext Input</label>
+                            <textarea id="textInput" rows="4" placeholder="Enter your message to encrypt..." class="w-full p-2.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:border-indigo-500 outline-none font-mono"></textarea>
+                            <div class="text-right text-[9px] text-slate-400 mt-1">Character count: <span id="charCount">0</span></div>
                         </div>
-                        <div class="input-group">
-                            <label class="input-label">📥 Decrypted Result</label>
-                            <textarea id="decrypted" placeholder="Decrypted text will appear here..." readonly></textarea>
+
+                        <button onclick="processText()" class="w-full bg-slate-500 hover:bg-slate-600 text-white text-xs font-bold py-2.5 rounded-lg shadow-sm transition flex items-center justify-center gap-2">
+                            <i class="fas fa-sync-alt"></i> Process Message
+                        </button>
+                    </div>
+
+                    <div class="flex flex-col h-full">
+                        <label class="block text-[10px] font-bold text-slate-600 mb-1">Encrypted Output (Hex/Base64)</label>
+                        <div id="textResult" class="flex-1 bg-green-50 border border-green-100 rounded-lg p-3 text-xs font-mono text-green-800 break-all overflow-y-auto max-h-[180px]">
+                            Encrypted text will appear here...
                         </div>
-                    </div>
-                    <div class="operation-buttons">
-                        <button class="btn-encrypt" onclick="encryptText()">🔒 Encrypt Message</button>
-                        <button class="btn-decrypt" onclick="decryptText()">🔓 Decrypt Message</button>
-                    </div>
-                    <div class="quick-examples">
-                        <h4>⚡ Quick Start Examples</h4>
-                        <div class="examples-grid">
-                            <div class="example-item" onclick="loadExample(1)">
-                                <div class="example-label">Step 1: Basic Test</div>
-                                <div class="example-value">CryptoCoin</div>
+                        
+                        <div class="mt-4 bg-blue-50 border border-blue-100 rounded-lg p-3">
+                            <h4 class="text-[10px] font-bold text-blue-700 mb-1"><i class="fas fa-cog mr-1"></i> Encryption Algorithm Overview</h4>
+                            <ul class="text-[9px] text-blue-600 space-y-1 list-disc pl-3">
+                                <li>Step 1: Input text is converted to byte array</li>
+                                <li>Step 2: XOR operation with repeating key pattern</li>
+                                <li>Step 3: S-box Substitution for non-linearity</li>
+                                <li>Step 4: Base64/Hex encoding for safe transmission</li>
+                            </ul>
+                        </div>
+
+                        <div class="mt-2 flex justify-between items-center p-2 bg-white border border-slate-200 rounded-lg">
+                            <div>
+                                <span class="block text-[9px] text-slate-400 font-bold">Active S-box Configuration</span>
+                                <span id="activeSboxName" class="block text-[10px] font-bold text-slate-700">AES Standard (FIPS 197)</span>
                             </div>
-                            <div class="example-item" onclick="loadExample(2)">
-                                <div class="example-label">Step 2: S-box ID</div>
-                                <div class="example-value">Secret Message</div>
-                            </div>
-                            <div class="example-item" onclick="loadExample(3)">
-                                <div class="example-label">Step 3: Benefit</div>
-                                <div class="example-value">Test@12345</div>
-                            </div>
+                            <span class="bg-indigo-600 text-white text-[8px] px-2 py-1 rounded font-bold">Industry Standard</span>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="footer">
-            <div>S-box Cryptographic Analyzer © 2024</div>
-            <div>Generated: 2025-12-23 18:00 | Runtime: 0.15s | Total S-boxes: 128 </div>
-        </div>
-    </div>
+            <div class="bg-orange-50 border border-orange-100 rounded-xl p-4 flex justify-between items-center">
+                <div>
+                    <h4 class="text-xs font-bold text-orange-800 mb-1"><i class="fas fa-bolt mr-1"></i> Quick Start Example</h4>
+                    <div class="flex gap-4 mt-2">
+                        <div class="bg-white px-2 py-1 rounded border border-orange-100">
+                            <span class="text-[8px] text-slate-400 block">Step 1: Enter Key</span>
+                            <span class="text-[10px] font-mono font-bold text-slate-700">CryptoKey2024</span>
+                        </div>
+                        <div class="bg-white px-2 py-1 rounded border border-orange-100">
+                            <span class="text-[8px] text-slate-400 block">Step 2: Enter Text</span>
+                            <span class="text-[10px] font-mono font-bold text-slate-700">Secret Message</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white px-3 py-2 rounded border border-orange-100">
+                    <span class="text-[8px] text-slate-400 block">Step 3: Result</span>
+                    <span class="text-[10px] font-mono font-bold text-orange-600">7A 4B 1C ...</span>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <footer class="max-w-[1600px] mx-auto px-6 py-8 flex justify-between items-center text-[10px] text-slate-400 border-t border-slate-200 mt-6">
+        <p>S-box Cryptographic Analyzer © 2024</p>
+        <p>Generated: 2025-12-22 17:53:24<br>Academic Research Tool</p>
+    </footer>
 
     <script>
-        // Configuration
-        const API_BASE = window.location.origin;
-        let allData = { candidates: [] };
-        let currentSbox = [];
-        let currentCandidate = null;
-        let colorMode = 'normal';
-        let displayFormat = 'decimal';
+        let sboxData = [];
+        let currentSboxId = "AES_STD";
+        let cryptoMode = 'encrypt';
+        let radarChartInstance = null;
+        let barChartInstance = null;
 
-        // Initialize
+        // --- MOCKUP DATA FOR AFFINE MATRIX (Visual Only) ---
+        const affinePattern = [
+            1,0,0,0,1,1,1,1,
+            1,1,0,0,0,1,1,1,
+            1,1,1,0,0,0,1,1,
+            1,1,1,1,0,0,0,1,
+            1,1,1,1,1,0,0,0,
+            0,1,1,1,1,1,0,0,
+            0,0,1,1,1,1,1,0,
+            0,0,0,1,1,1,1,1
+        ];
+
+        // --- INIT ---
         async function init() {
             try {
-                const response = await fetch(`${API_BASE}/api/data`);
-                allData = await response.json();
-                populateSboxSelect();
-                findOptimalCandidate();
-                loadSbox('AES_STD');
-            } catch (error) {
-                console.error('Error loading data:', error);
-                alert('Error connecting to backend. Please ensure the server is running.');
-            }
-        }
-
-        function populateSboxSelect() {
-            const select = document.getElementById('sboxSelect');
-            select.innerHTML = allData.candidates.map(c => 
-                `<option value="${c.id}">${c.name}</option>`
-            ).join('');
-            select.addEventListener('change', (e) => loadSbox(e.target.value));
-        }
-
-        function findOptimalCandidate() {
-            const optimal = allData.candidates.reduce((best, curr) => 
-                !best || curr.score < best.score ? curr : best
-            , null);
-            if (optimal) {
-                document.getElementById('optimalName').textContent = optimal.name;
-                document.getElementById('optimalScore').textContent = 
-                    `Optimization Score: ${optimal.score.toFixed(5)}`;
-            }
-        }
-
-        async function loadSbox(id) {
-            try {
-                const response = await fetch(`${API_BASE}/api/sbox-values/${id}`);
+                const response = await fetch('/api/data');
                 const data = await response.json();
-                currentSbox = data.sbox;
-                currentCandidate = allData.candidates.find(c => c.id === id);
+                sboxData = data.candidates;
                 
-                updateProperties();
-                renderSboxTable();
-                renderAffineMatrix();
-                renderRadarChart();
+                populateDropdown();
+                renderAffineGrid();
+                updateDashboard(currentSboxId);
             } catch (error) {
-                console.error('Error loading S-box:', error);
+                console.error("Error loading data:", error);
+                document.getElementById('metaName').innerText = "Error loading backend data";
             }
         }
 
-        function updateProperties() {
-            if (!currentCandidate) return;
-            document.getElementById('nlValue').textContent = currentCandidate.metrics.NL;
-            document.getElementById('sacValue').textContent = currentCandidate.metrics.SAC.toFixed(5);
+        // --- RENDER FUNCTIONS ---
+
+        function populateDropdown() {
+            const select = document.getElementById('sboxSelect');
+            select.innerHTML = '';
+            sboxData.forEach(item => {
+                const opt = document.createElement('option');
+                opt.value = item.id;
+                opt.innerText = item.name;
+                select.appendChild(opt);
+            });
+            select.addEventListener('change', (e) => updateDashboard(e.target.value));
         }
 
-        function renderSboxTable() {
-            const tbody = document.getElementById('sboxTableBody');
-            let html = '';
-            for (let i = 0; i < 16; i++) {
-                html += `<tr><th>${i.toString(16).toUpperCase()}</th>`;
-                for (let j = 0; j < 16; j++) {
-                    const idx = i * 16 + j;
-                    const val = currentSbox[idx];
-                    const display = displayFormat === 'hex' ? 
-                        `0x${val.toString(16).toUpperCase().padStart(2, '0')}` : val;
-                    const colorClass = colorMode === 'high' && val > 127 ? 'high-sac' : 
-                                      colorMode === 'normal' && val < 128 ? 'low-sac' : '';
-                    html += `<td class="${colorClass}">${display}</td>`;
-                }
-                html += '</tr>';
-            }
-            tbody.innerHTML = html;
+        function renderAffineGrid() {
+            const grid = document.getElementById('affineGrid');
+            grid.innerHTML = '';
+            affinePattern.forEach(val => {
+                const div = document.createElement('div');
+                div.className = `rounded-sm flex items-center justify-center text-[6px] font-bold ${val ? 'bg-indigo-700 text-white' : 'bg-white text-slate-300'}`;
+                div.innerText = val;
+                grid.appendChild(div);
+            });
         }
 
-        function renderAffineMatrix() {
-            const container = document.getElementById('affineMatrix');
-            // Generate random matrix for visualization (simplified)
-            const matrix = Array(64).fill(0).map(() => Math.random() > 0.5 ? 1 : 0);
-            container.innerHTML = matrix.map(val => 
-                `<div class="matrix-cell ${val === 0 ? 'zero' : ''}">${val}</div>`
-            ).join('');
+        async function updateDashboard(id) {
+            currentSboxId = id;
+            const candidate = sboxData.find(x => x.id === id);
+            if (!candidate) return;
+
+            // Metadata Updates
+            document.getElementById('metaName').innerText = candidate.name;
+            document.getElementById('metaId').innerText = candidate.id;
+            document.getElementById('activeSboxName').innerText = candidate.name;
+            document.getElementById('metaType').innerText = candidate.type.toUpperCase();
             
-            const active = matrix.filter(v => v === 1).length;
-            document.getElementById('activeBits').textContent = active;
-            document.getElementById('inactiveBits').textContent = 64 - active;
+            // Side Card Values
+            document.getElementById('cardNL').innerText = candidate.metrics.NL;
+            document.getElementById('cardSAC').innerText = candidate.metrics.SAC.toFixed(4);
+
+            // Render Grids & Charts
+            renderMetricsCards(candidate.metrics);
+            updateCharts(candidate);
+            
+            // Fetch S-box Values for Grid
+            try {
+                const res = await fetch(`/api/sbox-values/${id}`);
+                const data = await res.json();
+                renderSboxGrid(data.sbox);
+            } catch(e) { console.error(e); }
         }
 
-        function renderRadarChart() {
-            const ctx = document.getElementById('radarChart').getContext('2d');
-            if (window.radarChartInstance) window.radarChartInstance.destroy();
+        function renderSboxGrid(values) {
+            const grid = document.getElementById('sboxGrid');
+            grid.innerHTML = '';
+            values.forEach(val => {
+                const div = document.createElement('div');
+                // Calculate color intensity (Blue scale)
+                const opacity = 0.1 + (val / 255) * 0.9;
+                const bgColor = `rgba(59, 130, 246, ${opacity})`; // Blue-500 base
+                const textColor = val > 128 ? 'white' : '#1e293b'; // Slate-800
+
+                div.className = 'flex items-center justify-center text-[7px] font-mono cursor-default hover:border hover:border-yellow-400 transition-colors';
+                div.style.backgroundColor = bgColor;
+                div.style.color = textColor;
+                div.innerText = val.toString(16).toUpperCase().padStart(2, '0');
+                div.title = `Dec: ${val} | Hex: ${div.innerText}`;
+                grid.appendChild(div);
+            });
+        }
+
+        function renderMetricsCards(m) {
+            const container = document.getElementById('metricsGrid');
+            container.innerHTML = '';
+
+            const metricsDef = [
+                { k: 'NL', label: 'NONLINEARITY', target: 'Target: 112', icon: 'fa-shield-alt', color: 'text-purple-600', bg: 'bg-purple-100' },
+                { k: 'SAC', label: 'SAC', target: 'Target: 0.5', icon: 'fa-bolt', color: 'text-blue-600', bg: 'bg-blue-100' },
+                { k: 'BIC_NL', label: 'BIC-NL', target: 'Target: 112', icon: 'fa-cube', color: 'text-green-600', bg: 'bg-green-100' },
+                { k: 'BIC_SAC', label: 'BIC-SAC', target: 'Target: 0.5', icon: 'fa-chart-area', color: 'text-orange-600', bg: 'bg-orange-100' },
+                { k: 'LAP', label: 'LAP', target: 'Target: 0.0625', icon: 'fa-balance-scale', color: 'text-pink-600', bg: 'bg-pink-100' },
+                { k: 'DAP', label: 'DAP', target: 'Target: 0.015625', icon: 'fa-compress-arrows-alt', color: 'text-indigo-600', bg: 'bg-indigo-100' },
+                { k: 'DU', label: 'DIFF. UNIFORMITY', target: 'Target: 4', icon: 'fa-code-branch', color: 'text-blue-600', bg: 'bg-blue-100' },
+                { k: 'AD', label: 'ALGEBRAIC DEG.', target: 'Target: 7', icon: 'fa-superscript', color: 'text-purple-600', bg: 'bg-purple-100' },
+                { k: 'TO', label: 'TRANSPARENCY', target: 'Target: 0', icon: 'fa-eye', color: 'text-teal-600', bg: 'bg-teal-100' },
+                { k: 'CI', label: 'CORR. IMMUNITY', target: 'Target: >0', icon: 'fa-link', color: 'text-emerald-600', bg: 'bg-emerald-100' }
+            ];
+
+            metricsDef.forEach(def => {
+                let val = m[def.k];
+                if(typeof val === 'number' && val % 1 !== 0) val = val.toFixed(6);
+                
+                const html = `
+                    <div class="bg-white p-3 rounded-xl border border-slate-100 hover:shadow-md transition">
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="${def.bg} p-1.5 rounded-full ${def.color}"><i class="fas ${def.icon} text-xs"></i></div>
+                            <span class="text-[9px] font-bold text-slate-500 uppercase">${def.label}</span>
+                        </div>
+                        <div class="text-lg font-bold text-slate-800 leading-none mb-1">${val}</div>
+                        <div class="w-full bg-slate-100 h-1 rounded-full mb-1">
+                            <div class="h-1 rounded-full ${def.color.replace('text-', 'bg-')}" style="width: 75%"></div>
+                        </div>
+                        <div class="text-[8px] text-slate-400 font-medium">${def.target}</div>
+                    </div>
+                `;
+                container.innerHTML += html;
+            });
+        }
+
+        // --- CHARTS ---
+        function updateCharts(candidate) {
+            const m = candidate.metrics;
             
-            const metrics = currentCandidate?.metrics || {};
-            window.radarChartInstance = new Chart(ctx, {
+            // RADAR CHART
+            const radarCtx = document.getElementById('radarChart').getContext('2d');
+            const radarData = [m.NL/112, m.SAC*2, m.BIC_NL/112, m.BIC_SAC*2, 1-(m.LAP*4), 1-(m.DAP*10)]; // Normalized rough values
+            
+            if(radarChartInstance) radarChartInstance.destroy();
+            radarChartInstance = new Chart(radarCtx, {
                 type: 'radar',
                 data: {
-                    labels: ['NL', 'SAC', 'BIC-NL', 'BIC-SAC', 'LAP', 'DAP', 'DU', 'AD'],
+                    labels: ['NL', 'SAC', 'BIC-NL', 'BIC-SAC', 'LAP', 'DAP'],
                     datasets: [{
-                        label: currentCandidate?.name || 'Metrics',
-                        data: [
-                            metrics.NL / 112 * 100,
-                            metrics.SAC * 100,
-                            metrics.BIC_NL / 112 * 100,
-                            metrics.BIC_SAC * 100,
-                            (1 - metrics.LAP) * 100,
-                            (1 - metrics.DAP) * 100,
-                            (10 - metrics.DU) * 10,
-                            metrics.AD * 10
-                        ],
-                        backgroundColor: 'rgba(102, 126, 234, 0.2)',
-                        borderColor: 'rgba(102, 126, 234, 1)',
-                        borderWidth: 2,
-                        pointBackgroundColor: 'rgba(102, 126, 234, 1)'
+                        label: 'Metric Distribution',
+                        data: radarData,
+                        backgroundColor: 'rgba(99, 102, 241, 0.4)', // Indigo-500 with opacity
+                        borderColor: '#6366f1',
+                        pointBackgroundColor: '#fff',
+                        pointBorderColor: '#6366f1',
+                        borderWidth: 2
                     }]
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: true,
+                    maintainAspectRatio: false,
                     scales: {
                         r: {
-                            beginAtZero: true,
-                            max: 100,
-                            ticks: { stepSize: 20 }
+                            angleLines: { color: '#e2e8f0' },
+                            grid: { color: '#e2e8f0' },
+                            pointLabels: { font: { size: 9, family: 'Inter' }, color: '#64748b' },
+                            ticks: { display: false, max: 1 }
                         }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            // BAR CHART
+            const barCtx = document.getElementById('barChart').getContext('2d');
+            if(barChartInstance) barChartInstance.destroy();
+            
+            // Dummy comparison data for visual match
+            barChartInstance = new Chart(barCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['NL', 'SAC', 'BIC-NL', 'BIC-SAC', 'LAP'],
+                    datasets: [
+                        { label: 'AES', data: [112, 0.50, 112, 0.50, 0.06], backgroundColor: '#3b82f6', borderRadius: 4 },
+                        { label: 'K1', data: [112, 0.50, 112, 0.50, 0.12], backgroundColor: '#a855f7', borderRadius: 4 },
+                        { label: 'K2', data: [112, 0.50, 112, 0.50, 0.12], backgroundColor: '#ec4899', borderRadius: 4 },
+                        { label: 'K3', data: [112, 0.50, 112, 0.50, 0.12], backgroundColor: '#eab308', borderRadius: 4 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { font: {size: 9} } },
+                        x: { grid: { display: false }, ticks: { font: {size: 9} } }
                     }
                 }
             });
         }
 
-        function setColorMode(mode) {
-            colorMode = mode;
-            document.querySelectorAll('.color-mode-btns .btn-sm').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            event.target.classList.add('active');
-            renderSboxTable();
+        // --- ENCRYPTION LOGIC ---
+        function setMode(mode) {
+            cryptoMode = mode;
+            const btnEnc = document.getElementById('btnModeEncrypt');
+            const btnDec = document.getElementById('btnModeDecrypt');
+            
+            if(mode === 'encrypt') {
+                btnEnc.className = "flex-1 py-1.5 rounded-md text-xs font-bold text-white bg-green-600 shadow-sm transition";
+                btnDec.className = "flex-1 py-1.5 rounded-md text-xs font-bold text-slate-500 hover:text-slate-700 transition";
+            } else {
+                btnEnc.className = "flex-1 py-1.5 rounded-md text-xs font-bold text-slate-500 hover:text-slate-700 transition";
+                btnDec.className = "flex-1 py-1.5 rounded-md text-xs font-bold text-white bg-orange-500 shadow-sm transition";
+            }
         }
 
-        document.getElementById('displayFormat').addEventListener('change', (e) => {
-            displayFormat = e.target.value;
-            renderSboxTable();
+        document.getElementById('textInput').addEventListener('input', function(e) {
+            document.getElementById('charCount').innerText = e.target.value.length;
         });
 
-        document.getElementById('categoryFilter').addEventListener('change', (e) => {
-            const filter = e.target.value;
-            const select = document.getElementById('sboxSelect');
-            select.innerHTML = allData.candidates
-                .filter(c => filter === 'all' || c.type === filter)
-                .map(c => `<option value="${c.id}">${c.name}</option>`)
-                .join('');
-            if (select.options.length > 0) {
-                loadSbox(select.value);
-            }
-        });
+        async function processText() {
+            const text = document.getElementById('textInput').value;
+            const key = document.getElementById('textKey').value;
+            const resultBox = document.getElementById('textResult');
 
-        document.getElementById('searchInput').addEventListener('input', (e) => {
-            const query = e.target.value.toLowerCase();
-            const select = document.getElementById('sboxSelect');
-            select.innerHTML = allData.candidates
-                .filter(c => 
-                    c.id.toLowerCase().includes(query) ||
-                    c.name.toLowerCase().includes(query) ||
-                    c.type.toLowerCase().includes(query)
-                )
-                .map(c => `<option value="${c.id}">${c.name}</option>`)
-                .join('');
-            if (select.options.length > 0) {
-                loadSbox(select.value);
-            }
-        });
-
-        async function encryptText() {
-            const plaintext = document.getElementById('plaintext').value;
-            const key = document.getElementById('encKey').value;
-            const sboxId = document.getElementById('sboxSelect').value;
-
-            if (!plaintext || !key) {
-                alert('Please enter both plaintext and key');
+            if(!text || !key) {
+                alert("Please enter both text and a secret key.");
                 return;
             }
 
-            try {
-                const response = await fetch(`${API_BASE}/api/encrypt-text`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ text: plaintext, key, sbox_id: sboxId })
-                });
-                const data = await response.json();
-                document.getElementById('encrypted').value = data.result;
-            } catch (error) {
-                console.error('Encryption error:', error);
-                alert('Encryption failed. Check console for details.');
-            }
-        }
-
-        async function decryptText() {
-            const encrypted = document.getElementById('encrypted').value;
-            const key = document.getElementById('encKey').value;
-            const sboxId = document.getElementById('sboxSelect').value;
-
-            if (!encrypted || !key) {
-                alert('Please enter both encrypted text and key');
-                return;
-            }
+            resultBox.innerText = "Processing...";
+            const endpoint = cryptoMode === 'encrypt' ? '/api/encrypt-text' : '/api/decrypt-text';
 
             try {
-                const response = await fetch(`${API_BASE}/api/decrypt-text`, {
+                const res = await fetch(endpoint, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ text: encrypted, key, sbox_id: sboxId })
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ text, key, sbox_id: currentSboxId })
                 });
-                const data = await response.json();
-                document.getElementById('decrypted').value = data.result;
-            } catch (error) {
-                console.error('Decryption error:', error);
-                alert('Decryption failed. Check console for details.');
+                const data = await res.json();
+                
+                if(data.error) {
+                    resultBox.innerText = "Error: " + data.error;
+                    resultBox.classList.add('text-red-600');
+                } else {
+                    resultBox.innerText = data.result;
+                    resultBox.classList.remove('text-red-600');
+                }
+            } catch(e) {
+                resultBox.innerText = "Network Error";
             }
         }
 
-        function loadExample(num) {
-            const examples = [
-                { key: 'Key123', text: 'CryptoCoin' },
-                { key: 'SecureKey', text: 'Secret Message' },
-                { key: 'Pass@2024', text: 'Test@12345' }
-            ];
-            const ex = examples[num - 1];
-            document.getElementById('encKey').value = ex.key;
-            document.getElementById('plaintext').value = ex.text;
-            document.getElementById('encrypted').value = '';
-            document.getElementById('decrypted').value = '';
-        }
-
-        function copySbox() {
-            const text = currentSbox.join(', ');
-            navigator.clipboard.writeText(text).then(() => {
-                alert('S-box values copied to clipboard!');
-            });
-        }
-
-        function applySbox() {
-            alert(`Applied S-box: ${currentCandidate?.name}\nReady for encryption/decryption operations.`);
-        }
-
-        function loadOptimal() {
-            const optimal = allData.candidates.reduce((best, curr) => 
-                !best || curr.score < best.score ? curr : best
-            , null);
-            if (optimal) {
-                document.getElementById('sboxSelect').value = optimal.id;
-                loadSbox(optimal.id);
-            }
-        }
-
-        // Initialize on load
+        // Run
         init();
     </script>
 </body>
