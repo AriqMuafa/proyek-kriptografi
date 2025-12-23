@@ -3,363 +3,998 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>S-Box Cryptographic Analyzer</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>🔐 S-Box Analyzer & Crypto Explorer</title>
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f8faff; }
-        .sbox-cell { transition: all 0.2s; }
-        .sbox-cell:hover { transform: scale(1.1); z-index: 10; border: 1px solid #4f46e5; }
-        .gradient-text { background: linear-gradient(90deg, #4f46e5, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .team-info {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        .team-info p {
+            margin: 5px 0;
+            font-size: 0.9em;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f5f5f5;
+            border-bottom: 3px solid #667eea;
+            overflow-x: auto;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 20px;
+            background: white;
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s;
+            min-width: 150px;
+        }
+
+        .tab:hover {
+            background: #f0f0f0;
+        }
+
+        .tab.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 30px;
+            animation: fadeIn 0.5s;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .control-panel {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        select, input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border 0.3s;
+        }
+
+        select:focus, input:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            font-family: 'Courier New', monospace;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .output-box {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        .output-box h3 {
+            margin-bottom: 10px;
+            color: #667eea;
+        }
+
+        .output-box pre {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .sbox-grid {
+            display: grid;
+            grid-template-columns: repeat(16, 1fr);
+            gap: 2px;
+            background: white;
+            padding: 10px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .sbox-cell {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7em;
+            font-weight: 600;
+            border-radius: 3px;
+            transition: transform 0.2s;
+        }
+
+        .sbox-cell:hover {
+            transform: scale(1.1);
+            z-index: 10;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .metrics-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .metrics-table th,
+        .metrics-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .metrics-table th {
+            background: #667eea;
+            color: white;
+            font-weight: 600;
+        }
+
+        .metrics-table tr:hover {
+            background: #f9f9f9;
+        }
+
+        .image-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .image-box {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .image-box img {
+            max-width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .image-box h4 {
+            margin: 10px 0;
+            color: #333;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-input-label {
+            display: block;
+            padding: 12px;
+            background: white;
+            border: 2px dashed #667eea;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .file-input-label:hover {
+            background: #f0f0ff;
+            border-color: #764ba2;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .metric-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .metric-card h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .metric-value {
+            font-size: 2em;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .badge-excellent {
+            background: #4caf50;
+            color: white;
+        }
+
+        .badge-good {
+            background: #2196f3;
+            color: white;
+        }
+
+        .badge-fair {
+            background: #ff9800;
+            color: white;
+        }
+
+        .badge-poor {
+            background: #f44336;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .tabs {
+                flex-wrap: wrap;
+            }
+
+            .tab {
+                min-width: 100%;
+            }
+
+            .sbox-grid {
+                grid-template-columns: repeat(8, 1fr);
+            }
+
+            .image-container {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
-<body class="text-slate-800">
-
-    <nav class="bg-white border-b border-slate-200 px-6 py-4 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <div class="bg-indigo-600 text-white p-2 rounded-lg"><i class="fas fa-shield-alt fa-lg"></i></div>
-                <div>
-                    <h1 class="font-bold text-xl">S-box Cryptographic Analyzer</h1>
-                    <p class="text-xs text-slate-500">Ultimate S-box Data | 10 Metrics Analysis</p>
-                </div>
-            </div>
-            <div class="flex gap-2">
-                <span class="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-full text-xs font-semibold" id="totalSboxes">Loading...</span>
-                <span class="px-3 py-1 bg-green-50 text-green-600 rounded-full text-xs font-semibold">Online</span>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 S-Box Analyzer & Crypto Explorer</h1>
+            <p>Advanced Cryptographic Analysis Tool</p>
+            <div class="team-info">
+                <p><strong>Kelompok:</strong></p>
+                <p>Faisal Fahmi Yuliawan (2304130051)</p>
+                <p>Muhammad Rifki Rifaldi (2304130052)</p>
+                <p>Muhamad 'Ariq Mu'afa Al-Ghifari (2304130059)</p>
+                <p>Ryan Hidayat (2304130075)</p>
             </div>
         </div>
-    </nav>
 
-    <main class="max-w-7xl mx-auto px-6 py-8 grid grid-cols-12 gap-6">
-        
-        <aside class="col-span-12 lg:col-span-3 space-y-6">
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-100">
-                <label class="block text-sm font-medium text-slate-700 mb-2">Select S-box Configuration</label>
-                <select id="sboxSelect" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none bg-slate-50">
-                    <option>Loading data...</option>
-                </select>
-                
-                <div class="mt-4 p-4 bg-slate-50 rounded-lg border border-slate-200">
-                    <div class="flex justify-between items-center mb-1">
-                        <span class="text-xs font-semibold text-slate-500">ID</span>
-                        <span id="metaId" class="text-sm font-bold text-indigo-600">...</span>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-xs font-semibold text-slate-500">Type</span>
-                        <span id="metaType" class="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded">...</span>
-                    </div>
-                </div>
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('overview')">📊 Overview</button>
+            <button class="tab" onclick="switchTab('visualize')">🔥 S-Box Heatmap</button>
+            <button class="tab" onclick="switchTab('text-crypto')">📝 Text Encryption</button>
+            <button class="tab" onclick="switchTab('image-crypto')">🖼️ Image Encryption</button>
+            <button class="tab" onclick="switchTab('metrics')">📈 Metrics Analysis</button>
+            <button class="tab" onclick="switchTab('compare')">⚖️ Compare S-Boxes</button>
+        </div>
 
-                <div class="grid grid-cols-2 gap-3 mt-4">
-                    <div class="p-3 bg-green-50 rounded-lg text-center">
-                        <div class="text-xs text-green-600 font-semibold">Nonlinearity</div>
-                        <div id="metaNL" class="text-lg font-bold text-green-700">-</div>
-                    </div>
-                    <div class="p-3 bg-blue-50 rounded-lg text-center">
-                        <div class="text-xs text-blue-600 font-semibold">SAC Score</div>
-                        <div id="metaSAC" class="text-lg font-bold text-blue-700">-</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-100">
-                <h3 class="text-sm font-bold mb-4 flex items-center gap-2"><i class="fas fa-th"></i> Affine Matrix (Mockup)</h3>
-                <div class="grid grid-cols-8 gap-1" id="affineGrid">
-                    </div>
-            </div>
-        </aside>
-
-        <section class="col-span-12 lg:col-span-9 space-y-6">
+        <!-- Overview Tab -->
+        <div id="overview" class="tab-content active">
+            <h2>Welcome to S-Box Analyzer</h2>
+            <p>This tool provides comprehensive analysis of 128 different S-box candidates including AES standard and proposed alternatives.</p>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-100">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="font-bold text-slate-700">Substitution Table (16x16)</h3>
-                        <div class="text-xs flex gap-2">
-                            <span class="flex items-center gap-1"><div class="w-3 h-3 bg-indigo-100"></div> Low</span>
-                            <span class="flex items-center gap-1"><div class="w-3 h-3 bg-indigo-600"></div> High</span>
-                        </div>
-                    </div>
-                    <div id="sboxGrid" class="grid grid-cols-16 gap-0.5 aspect-square border border-slate-200 bg-slate-50 p-1">
-                        </div>
+            <div class="comparison-grid">
+                <div class="metric-card">
+                    <h4>Total S-Boxes</h4>
+                    <div class="metric-value" id="total-sboxes">128</div>
                 </div>
-
-                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-100 flex flex-col items-center justify-center">
-                    <h3 class="font-bold text-slate-700 mb-2 w-full text-left">Cryptographic Metrics Distribution</h3>
-                    <div class="w-full h-64 relative">
-                        <canvas id="radarChart"></canvas>
-                    </div>
-                    <p class="text-xs text-slate-400 mt-4 text-center">Higher values generally indicate better properties (except TO/LAP/DAP)</p>
+                <div class="metric-card">
+                    <h4>Metrics Analyzed</h4>
+                    <div class="metric-value">10</div>
+                </div>
+                <div class="metric-card">
+                    <h4>Best Candidate</h4>
+                    <div class="metric-value" style="font-size: 1.5em;">K44</div>
+                    <span class="badge badge-excellent">Proposed</span>
                 </div>
             </div>
 
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-100">
-                <h3 class="font-bold text-slate-700 mb-4 border-b pb-2"><i class="fas fa-chart-bar text-indigo-500 mr-2"></i> Comprehensive Metrics Evaluation</h3>
-                <div class="grid grid-cols-2 md:grid-cols-5 gap-4" id="metricsContainer">
-                    </div>
+            <div class="output-box">
+                <h3>About This Tool</h3>
+                <p>This application analyzes S-boxes using 10 cryptographic metrics:</p>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li><strong>NL (Nonlinearity):</strong> Resistance to linear cryptanalysis</li>
+                    <li><strong>SAC (Strict Avalanche Criterion):</strong> Output bit change rate</li>
+                    <li><strong>BIC-NL:</strong> Bit Independence Criterion - Nonlinearity</li>
+                    <li><strong>BIC-SAC:</strong> Bit Independence Criterion - SAC</li>
+                    <li><strong>LAP:</strong> Linear Approximation Probability</li>
+                    <li><strong>DAP:</strong> Differential Approximation Probability</li>
+                    <li><strong>DU:</strong> Differential Uniformity</li>
+                    <li><strong>AD:</strong> Algebraic Degree</li>
+                    <li><strong>TO:</strong> Transparency Order</li>
+                    <li><strong>CI:</strong> Correlation Immunity</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Visualize Tab -->
+        <div id="visualize" class="tab-content">
+            <div class="control-panel">
+                <div class="form-group">
+                    <label for="sbox-select-viz">Select S-Box:</label>
+                    <select id="sbox-select-viz" onchange="loadSBoxVisualization()">
+                        <option value="">Loading...</option>
+                    </select>
+                </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                
-                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-100">
-                    <h3 class="font-bold text-slate-700 mb-4 flex items-center gap-2">
-                        <i class="fas fa-lock text-purple-500"></i> Text Encryption
-                    </h3>
-                    <div class="space-y-3">
-                        <div>
-                            <label class="text-xs font-semibold text-slate-500">Secret Key</label>
-                            <input type="text" id="textKey" value="rahasia" class="w-full p-2 border rounded text-sm bg-slate-50 focus:border-purple-500 outline-none">
-                        </div>
-                        <div>
-                            <label class="text-xs font-semibold text-slate-500">Input Text / Hex</label>
-                            <textarea id="textInput" class="w-full p-2 border rounded text-sm bg-slate-50 h-20 focus:border-purple-500 outline-none" placeholder="Enter text..."></textarea>
-                        </div>
-                        <div class="flex gap-2">
-                            <button onclick="processText('encrypt')" class="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-2 rounded text-sm font-medium transition"><i class="fas fa-lock"></i> Encrypt</button>
-                            <button onclick="processText('decrypt')" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 py-2 rounded text-sm font-medium transition"><i class="fas fa-unlock"></i> Decrypt</button>
-                        </div>
-                        <div class="bg-slate-900 p-3 rounded text-green-400 font-mono text-xs break-all min-h-[60px]" id="textResult">
-                            Output will appear here...
-                        </div>
+            <div class="output-box">
+                <h3>S-Box Heatmap (16×16 Grid)</h3>
+                <div id="sbox-grid" class="sbox-grid"></div>
+            </div>
+        </div>
+
+        <!-- Text Crypto Tab -->
+        <div id="text-crypto" class="tab-content">
+            <div class="control-panel">
+                <div class="form-group">
+                    <label for="sbox-select-text">Select S-Box:</label>
+                    <select id="sbox-select-text">
+                        <option value="">Loading...</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="text-key">Encryption Key:</label>
+                    <input type="text" id="text-key" placeholder="Enter encryption key" value="secret123">
+                </div>
+
+                <div class="form-group">
+                    <label for="plaintext">Plaintext:</label>
+                    <textarea id="plaintext" rows="4" placeholder="Enter text to encrypt...">Hello World!</textarea>
+                </div>
+
+                <button onclick="encryptText()">🔒 Encrypt Text</button>
+                <button onclick="decryptText()">🔓 Decrypt Text</button>
+            </div>
+
+            <div class="output-box">
+                <h3>Encrypted Output (Hex)</h3>
+                <pre id="ciphertext-output">Click Encrypt to see result...</pre>
+            </div>
+
+            <div class="output-box">
+                <h3>Decrypted Output</h3>
+                <pre id="decrypted-output">Click Decrypt to see result...</pre>
+            </div>
+        </div>
+
+        <!-- Image Crypto Tab -->
+        <div id="image-crypto" class="tab-content">
+            <div class="control-panel">
+                <div class="form-group">
+                    <label for="sbox-select-image">Select S-Box:</label>
+                    <select id="sbox-select-image">
+                        <option value="">Loading...</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Upload Image:</label>
+                    <div class="file-input-wrapper">
+                        <label class="file-input-label" for="image-input">
+                            📁 Click to select image (PNG, JPG)
+                        </label>
+                        <input type="file" id="image-input" accept="image/*" onchange="previewImage()">
                     </div>
                 </div>
 
-                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-100">
-                    <h3 class="font-bold text-slate-700 mb-4 flex items-center gap-2">
-                        <i class="fas fa-image text-pink-500"></i> Image Encryption
-                    </h3>
-                    <div class="space-y-4">
-                        <div class="border-2 border-dashed border-slate-300 rounded-lg p-4 text-center hover:bg-slate-50 transition relative">
-                            <input type="file" id="imageInput" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer">
-                            <i class="fas fa-cloud-upload-alt text-2xl text-slate-400 mb-2"></i>
-                            <p class="text-xs text-slate-500">Click to upload image</p>
-                        </div>
-                        <div class="flex gap-2">
-                            <button onclick="processImage('encrypt')" class="flex-1 bg-pink-600 hover:bg-pink-700 text-white py-2 rounded text-sm font-medium transition">Encrypt Img</button>
-                            <button onclick="processImage('decrypt')" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 py-2 rounded text-sm font-medium transition">Decrypt Img</button>
-                        </div>
-                        <div class="border border-slate-200 rounded-lg p-2 min-h-[150px] flex items-center justify-center bg-slate-50">
-                            <img id="imageResult" class="max-h-40 max-w-full hidden rounded shadow-sm">
-                            <span id="imgPlaceholder" class="text-xs text-slate-400">Result preview</span>
-                        </div>
-                    </div>
-                </div>
-
+                <button onclick="encryptImage()">🔒 Encrypt Image</button>
+                <button onclick="decryptImage()">🔓 Decrypt Image</button>
             </div>
 
-        </section>
-    </main>
+            <div class="loading" id="image-loading">
+                <div class="spinner"></div>
+                <p>Processing image...</p>
+            </div>
 
-    <footer class="text-center py-6 text-slate-400 text-xs">
-        <p>&copy; 2025 S-box Cryptographic Analyzer Group Project.</p>
-    </footer>
+            <div class="image-container" id="image-results"></div>
+        </div>
+
+        <!-- Metrics Tab -->
+        <div id="metrics" class="tab-content">
+            <div class="control-panel">
+                <div class="form-group">
+                    <label for="sbox-select-metrics">Select S-Box:</label>
+                    <select id="sbox-select-metrics" onchange="loadMetrics()">
+                        <option value="">Loading...</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="metrics-display"></div>
+        </div>
+
+        <!-- Compare Tab -->
+        <div id="compare" class="tab-content">
+            <h2>Top 10 S-Boxes Comparison</h2>
+            <div id="comparison-table"></div>
+        </div>
+    </div>
 
     <script>
-        let sboxData = [];
-        let currentSboxId = "AES_STD";
-        let radarChartInstance = null;
+        let allData = null;
+        let currentImage = null;
+        let encryptedImageData = null;
 
-        // 1. Initialize & Fetch Data
+        // Initialize
         async function init() {
             try {
                 const response = await fetch('/api/data');
-                const data = await response.json();
-                sboxData = data.candidates;
-                
-                document.getElementById('totalSboxes').innerText = `${data.metadata.total_sboxes} S-boxes`;
-                
-                populateDropdown();
-                updateDashboard(currentSboxId);
+                allData = await response.json();
+                populateSelects();
+                loadTopComparison();
             } catch (error) {
-                console.error("Failed to load data", error);
-                alert("Failed to load backend data.");
+                console.error('Error loading data:', error);
+                alert('Error connecting to server. Please check if the backend is running.');
             }
         }
 
-        // 2. Populate Dropdown
-        function populateDropdown() {
-            const select = document.getElementById('sboxSelect');
-            select.innerHTML = '';
-            sboxData.forEach(item => {
-                const opt = document.createElement('option');
-                opt.value = item.id;
-                opt.innerText = `${item.name} (Score: ${item.score.toFixed(4)})`;
-                select.appendChild(opt);
-            });
-            select.addEventListener('change', (e) => updateDashboard(e.target.value));
+        function populateSelects() {
+            const candidates = allData.candidates;
+            const options = candidates.map(c => 
+                `<option value="${c.id}">${c.name}</option>`
+            ).join('');
+
+            document.getElementById('sbox-select-viz').innerHTML = options;
+            document.getElementById('sbox-select-text').innerHTML = options;
+            document.getElementById('sbox-select-image').innerHTML = options;
+            document.getElementById('sbox-select-metrics').innerHTML = options;
+
+            // Load default visualizations
+            loadSBoxVisualization();
+            loadMetrics();
         }
 
-        // 3. Update Dashboard Logic
-        async function updateDashboard(id) {
-            currentSboxId = id;
-            const candidate = sboxData.find(x => x.id === id);
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        async function loadSBoxVisualization() {
+            const sboxId = document.getElementById('sbox-select-viz').value;
+            try {
+                const response = await fetch(`/api/sbox-values/${sboxId}`);
+                const data = await response.json();
+                
+                const grid = document.getElementById('sbox-grid');
+                grid.innerHTML = '';
+
+                data.sbox.forEach((val, idx) => {
+                    const cell = document.createElement('div');
+                    cell.className = 'sbox-cell';
+                    cell.textContent = val.toString(16).toUpperCase().padStart(2, '0');
+                    
+                    // Color based on value
+                    const hue = (val / 255) * 360;
+                    cell.style.background = `hsl(${hue}, 70%, 60%)`;
+                    cell.style.color = val > 128 ? 'white' : 'black';
+                    
+                    cell.title = `Index: ${idx} | Value: ${val}`;
+                    grid.appendChild(cell);
+                });
+            } catch (error) {
+                console.error('Error loading S-box:', error);
+            }
+        }
+
+        async function encryptText() {
+            const sboxId = document.getElementById('sbox-select-text').value;
+            const key = document.getElementById('text-key').value;
+            const text = document.getElementById('plaintext').value;
+
+            if (!text || !key) {
+                alert('Please enter both text and key');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/encrypt-text', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text, key, sbox_id: sboxId })
+                });
+
+                const data = await response.json();
+                if (data.error) {
+                    alert('Error: ' + data.error);
+                } else {
+                    document.getElementById('ciphertext-output').textContent = data.result;
+                }
+            } catch (error) {
+                console.error('Encryption error:', error);
+                alert('Encryption failed');
+            }
+        }
+
+        async function decryptText() {
+            const sboxId = document.getElementById('sbox-select-text').value;
+            const key = document.getElementById('text-key').value;
+            const ciphertext = document.getElementById('ciphertext-output').textContent;
+
+            if (ciphertext === 'Click Encrypt to see result...') {
+                alert('Please encrypt text first');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/decrypt-text', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: ciphertext, key, sbox_id: sboxId })
+                });
+
+                const data = await response.json();
+                if (data.error) {
+                    alert('Error: ' + data.error);
+                } else {
+                    document.getElementById('decrypted-output').textContent = data.result;
+                }
+            } catch (error) {
+                console.error('Decryption error:', error);
+                alert('Decryption failed');
+            }
+        }
+
+        function previewImage() {
+            const file = document.getElementById('image-input').files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    currentImage = file;
+                    const results = document.getElementById('image-results');
+                    results.innerHTML = `
+                        <div class="image-box">
+                            <h4>Original Image</h4>
+                            <img src="${e.target.result}" alt="Original">
+                        </div>
+                    `;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        async function encryptImage() {
+            if (!currentImage) {
+                alert('Please select an image first');
+                return;
+            }
+
+            const sboxId = document.getElementById('sbox-select-image').value;
+            const formData = new FormData();
+            formData.append('file', currentImage);
+            formData.append('sbox_id', sboxId);
+            formData.append('mode', 'encrypt');
+
+            document.getElementById('image-loading').classList.add('active');
+
+            try {
+                const response = await fetch('/api/process-image', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                document.getElementById('image-loading').classList.remove('active');
+
+                if (data.status === 'success') {
+                    encryptedImageData = data.image_data;
+                    const results = document.getElementById('image-results');
+                    results.innerHTML += `
+                        <div class="image-box">
+                            <h4>Encrypted Image</h4>
+                            <img src="${data.image_data}" alt="Encrypted">
+                        </div>
+                    `;
+                } else {
+                    alert('Encryption failed: ' + data.message);
+                }
+            } catch (error) {
+                document.getElementById('image-loading').classList.remove('active');
+                console.error('Image encryption error:', error);
+                alert('Image encryption failed');
+            }
+        }
+
+        async function decryptImage() {
+            if (!encryptedImageData) {
+                alert('Please encrypt an image first');
+                return;
+            }
+
+            const sboxId = document.getElementById('sbox-select-image').value;
+            
+            // Convert base64 to blob
+            const blob = await fetch(encryptedImageData).then(r => r.blob());
+            const file = new File([blob], 'encrypted.png', { type: 'image/png' });
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('sbox_id', sboxId);
+            formData.append('mode', 'decrypt');
+
+            document.getElementById('image-loading').classList.add('active');
+
+            try {
+                const response = await fetch('/api/process-image', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                document.getElementById('image-loading').classList.remove('active');
+
+                if (data.status === 'success') {
+                    const results = document.getElementById('image-results');
+                    results.innerHTML += `
+                        <div class="image-box">
+                            <h4>Decrypted Image</h4>
+                            <img src="${data.image_data}" alt="Decrypted">
+                        </div>
+                    `;
+                } else {
+                    alert('Decryption failed: ' + data.message);
+                }
+            } catch (error) {
+                document.getElementById('image-loading').classList.remove('active');
+                console.error('Image decryption error:', error);
+                alert('Image decryption failed');
+            }
+        }
+
+        function loadMetrics() {
+            const sboxId = document.getElementById('sbox-select-metrics').value;
+            const candidate = allData.candidates.find(c => c.id === sboxId);
+            
             if (!candidate) return;
 
-            // Metadata
-            document.getElementById('metaId').innerText = candidate.id;
-            document.getElementById('metaType').innerText = candidate.type.toUpperCase();
-            document.getElementById('metaNL').innerText = candidate.metrics.NL;
-            document.getElementById('metaSAC').innerText = candidate.metrics.SAC.toFixed(4);
+            const m = candidate.metrics;
+            const display = document.getElementById('metrics-display');
 
-            // Metrics Cards
-            renderMetricsCards(candidate.metrics);
+            function getBadge(metric, value) {
+                // Define thresholds for each metric
+                const thresholds = {
+                    NL: { excellent: 112, good: 110, fair: 108 },
+                    SAC: { excellent: [0.495, 0.505], good: [0.49, 0.51], fair: [0.48, 0.52] },
+                    BIC_SAC: { excellent: [0.495, 0.505], good: [0.49, 0.51], fair: [0.48, 0.52] }
+                };
 
-            // Radar Chart
-            updateRadarChart(candidate.metrics);
+                if (metric === 'NL') {
+                    if (value >= 112) return 'excellent';
+                    if (value >= 110) return 'good';
+                    if (value >= 108) return 'fair';
+                    return 'poor';
+                } else if (metric === 'SAC' || metric === 'BIC_SAC') {
+                    const [min, max] = thresholds[metric].excellent;
+                    if (value >= min && value <= max) return 'excellent';
+                    const [min2, max2] = thresholds[metric].good;
+                    if (value >= min2 && value <= max2) return 'good';
+                    return 'fair';
+                }
+                return 'good';
+            }
 
-            // 16x16 Grid (Fetch from API to get values)
-            try {
-                const res = await fetch(`/api/sbox-values/${id}`);
-                const sboxVals = await res.json();
-                renderGrid(sboxVals.sbox);
-            } catch (e) { console.error(e); }
-        }
-
-        // 4. Render Grid
-        function renderGrid(values) {
-            const grid = document.getElementById('sboxGrid');
-            grid.innerHTML = '';
-            values.forEach(val => {
-                const div = document.createElement('div');
-                div.className = 'sbox-cell flex items-center justify-center text-[8px] font-mono cursor-default';
-                div.innerText = val.toString(16).toUpperCase().padStart(2, '0');
-                
-                // Color mapping logic (Blue gradient)
-                const intensity = val / 255;
-                div.style.backgroundColor = `rgba(79, 70, 229, ${0.1 + (intensity * 0.9)})`;
-                div.style.color = intensity > 0.5 ? 'white' : 'black';
-                
-                div.title = `Val: ${val} (0x${val.toString(16).toUpperCase()})`;
-                grid.appendChild(div);
-            });
-        }
-
-        // 5. Render Metrics
-        function renderMetricsCards(m) {
-            const container = document.getElementById('metricsContainer');
-            container.innerHTML = '';
-            
-            const metrics = [
-                { k: 'NL', label: 'Nonlinearity', target: '112', icon: 'fa-cube', color: 'text-purple-600' },
-                { k: 'SAC', label: 'SAC', target: '0.5', icon: 'fa-bolt', color: 'text-blue-600' },
-                { k: 'BIC_NL', label: 'BIC-NL', target: '112', icon: 'fa-link', color: 'text-green-600' },
-                { k: 'LAP', label: 'LAP', target: 'Low', icon: 'fa-chart-line', color: 'text-red-600' },
-                { k: 'DAP', label: 'DAP', target: 'Low', icon: 'fa-compress-arrows-alt', color: 'text-orange-600' },
-                { k: 'DU', label: 'Diff. Unif.', target: '4', icon: 'fa-code-branch', color: 'text-indigo-600' },
-                { k: 'AD', label: 'Alg. Degree', target: '7', icon: 'fa-calculator', color: 'text-teal-600' },
-                { k: 'CI', label: 'Corr. Immunity', target: 'High', icon: 'fa-shield-virus', color: 'text-gray-600' },
-                { k: 'TO', label: 'Transp. Order', target: 'Low', icon: 'fa-eye', color: 'text-pink-600' },
-                { k: 'BIC_SAC', label: 'BIC-SAC', target: '0.5', icon: 'fa-random', color: 'text-yellow-600' }
-            ];
-
-            metrics.forEach(item => {
-                const val = typeof m[item.k] === 'number' && m[item.k] % 1 !== 0 ? m[item.k].toFixed(4) : m[item.k];
-                const html = `
-                    <div class="p-3 bg-slate-50 rounded-lg border border-slate-100 hover:shadow-md transition">
-                        <div class="flex items-center gap-2 mb-1">
-                            <i class="fas ${item.icon} ${item.color} text-xs"></i>
-                            <span class="text-[10px] font-bold text-slate-500 uppercase">${item.label}</span>
-                        </div>
-                        <div class="text-xl font-bold text-slate-800">${val}</div>
-                        <div class="text-[9px] text-slate-400">Target: ${item.target}</div>
+            display.innerHTML = `
+                <div class="comparison-grid">
+                    <div class="metric-card">
+                        <h4>Nonlinearity (NL)</h4>
+                        <div class="metric-value">${m.NL}</div>
+                        <span class="badge badge-${getBadge('NL', m.NL)}">Max: 112</span>
                     </div>
-                `;
-                container.innerHTML += html;
-            });
+                    <div class="metric-card">
+                        <h4>SAC</h4>
+                        <div class="metric-value">${m.SAC.toFixed(5)}</div>
+                        <span class="badge badge-${getBadge('SAC', m.SAC)}">Ideal: 0.5</span>
+                    </div>
+                    <div class="metric-card">
+                        <h4>BIC-NL</h4>
+                        <div class="metric-value">${m.BIC_NL}</div>
+                        <span class="badge badge-${getBadge('NL', m.BIC_NL)}">Max: 112</span>
+                    </div>
+                    <div class="metric-card">
+                        <h4>BIC-SAC</h4>
+                        <div class="metric-value">${m.BIC_SAC.toFixed(5)}</div>
+                        <span class="badge badge-${getBadge('BIC_SAC', m.BIC_SAC)}">Ideal: 0.5</span>
+                    </div>
+                    <div class="metric-card">
+                        <h4>LAP</h4>
+                        <div class="metric-value">${m.LAP.toFixed(6)}</div>
+                        <span class="badge badge-good">Min Better</span>
+                    </div>
+                    <div class="metric-card">
+                        <h4>DAP</h4>
+                        <div class="metric-value">${m.DAP.toFixed(6)}</div>
+                        <span class="badge badge-good">Min Better</span>
+                    </div>
+                    <div class="metric-card">
+                        <h4>Diff. Uniformity</h4>
+                        <div class="metric-value">${m.DU}</div>
+                        <span class="badge badge-${m.DU === 4 ? 'excellent' : 'good'}">Min: 4</span>
+                    </div>
+                    <div class="metric-card">
+                        <h4>Algebraic Degree</h4>
+                        <div class="metric-value">${m.AD}</div>
+                        <span class="badge badge-${m.AD === 7 ? 'excellent' : 'good'}">Max: 7</span>
+                    </div>
+                    <div class="metric-card">
+                        <h4>Transparency Order</h4>
+                        <div class="metric-value">${m.TO.toFixed(6)}</div>
+                        <span class="badge badge-good">Min Better</span>
+                    </div>
+                    <div class="metric-card">
+                        <h4>Corr. Immunity</h4>
+                        <div class="metric-value">${m.CI}</div>
+                        <span class="badge badge-${m.CI >= 5 ? 'excellent' : 'good'}">High Better</span>
+                    </div>
+                </div>
+
+                <div class="output-box" style="margin-top: 30px;">
+                    <h3>Detailed Metrics Table</h3>
+                    <table class="metrics-table">
+                        <thead>
+                            <tr>
+                                <th>Metric</th>
+                                <th>Value</th>
+                                <th>Ideal/Standard</th>
+                                <th>Interpretation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Nonlinearity (NL)</strong></td>
+                                <td>${m.NL}</td>
+                                <td>Max (112)</td>
+                                <td>Resistance to linear attacks</td>
+                            </tr>
+                            <tr>
+                                <td><strong>SAC</strong></td>
+                                <td>${m.SAC.toFixed(5)}</td>
+                                <td>0.5</td>
+                                <td>Avalanche effect quality</td>
+                            </tr>
+                            <tr>
+                                <td><strong>BIC-NL</strong></td>
+                                <td>${m.BIC_NL}</td>
+                                <td>Max (112)</td>
+                                <td>Bit independence - nonlinearity</td>
+                            </tr>
+                            <tr>
+                                <td><strong>BIC-SAC</strong></td>
+                                <td>${m.BIC_SAC.toFixed(5)}</td>
+                                <td>0.5</td>
+                                <td>Bit independence - avalanche</td>
+                            </tr>
+                            <tr>
+                                <td><strong>LAP</strong></td>
+                                <td>${m.LAP.toFixed(6)}</td>
+                                <td>Min</td>
+                                <td>Linear attack vulnerability</td>
+                            </tr>
+                            <tr>
+                                <td><strong>DAP</strong></td>
+                                <td>${m.DAP.toFixed(6)}</td>
+                                <td>Min</td>
+                                <td>Differential attack vulnerability</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Differential Uniformity</strong></td>
+                                <td>${m.DU}</td>
+                                <td>Min (4)</td>
+                                <td>Differential cryptanalysis resistance</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Algebraic Degree</strong></td>
+                                <td>${m.AD}</td>
+                                <td>Max (7)</td>
+                                <td>Algebraic attack resistance</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Transparency Order</strong></td>
+                                <td>${m.TO.toFixed(6)}</td>
+                                <td>Min</td>
+                                <td>Linear correlation strength</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Correlation Immunity</strong></td>
+                                <td>${m.CI}</td>
+                                <td>High</td>
+                                <td>Input independence level</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            `;
         }
 
-        // 6. Update Radar Chart
-        function updateRadarChart(metrics) {
-            const ctx = document.getElementById('radarChart').getContext('2d');
-            const labels = ['SAC', 'BIC-SAC', 'LAP (Inv)', 'DAP (Inv)', 'NL (Norm)'];
-            // Normalize data for chart visuals
-            const data = [
-                metrics.SAC, 
-                metrics.BIC_SAC, 
-                1 - metrics.LAP, // Invert because lower LAP is better
-                1 - (metrics.DAP * 10), // Scale DAP
-                metrics.NL / 128
-            ];
+        function loadTopComparison() {
+            // Calculate scores and sort
+            const sorted = allData.candidates.map(c => {
+                const m = c.metrics;
+                const score = Math.abs(m.SAC - 0.5) + Math.abs(m.BIC_SAC - 0.5);
+                return { ...c, score };
+            }).sort((a, b) => a.score - b.score);
 
-            if (radarChartInstance) radarChartInstance.destroy();
+            const top10 = sorted.slice(0, 10);
 
-            radarChartInstance = new Chart(ctx, {
-                type: 'radar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Metric Performance',
-                        data: data,
-                        backgroundColor: 'rgba(79, 70, 229, 0.2)',
-                        borderColor: '#4f46e5',
-                        pointBackgroundColor: '#ec4899',
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        r: { beginAtZero: true, max: 1.0, ticks: { display: false } }
-                    },
-                    plugins: { legend: { display: false } }
-                }
-            });
+            const table = document.getElementById('comparison-table');
+            table.innerHTML = `
+                <table class="metrics-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>NL</th>
+                            <th>SAC</th>
+                            <th>BIC-SAC</th>
+                            <th>Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${top10.map((c, idx) => `
+                            <tr>
+                                <td><strong>${idx + 1}</strong></td>
+                                <td>${c.name} ${c.type === 'proposed' ? '🏆' : ''}</td>
+                                <td><span class="badge badge-${c.type === 'proposed' ? 'excellent' : c.type === 'standard' ? 'good' : 'fair'}">${c.type}</span></td>
+                                <td>${c.metrics.NL}</td>
+                                <td>${c.metrics.SAC.toFixed(5)}</td>
+                                <td>${c.metrics.BIC_SAC.toFixed(5)}</td>
+                                <td>${c.score.toFixed(5)}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
         }
 
-        // 7. Text Processing API
-        async function processText(mode) {
-            const text = document.getElementById('textInput').value;
-            const key = document.getElementById('textKey').value;
-            const resDiv = document.getElementById('textResult');
-            
-            if(!text || !key) { alert("Text and Key are required"); return; }
-            resDiv.innerText = "Processing...";
-
-            const endpoint = mode === 'encrypt' ? '/api/encrypt-text' : '/api/decrypt-text';
-            
-            try {
-                const res = await fetch(endpoint, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ text, key, sbox_id: currentSboxId })
-                });
-                const data = await res.json();
-                if(data.error) resDiv.innerText = "Error: " + data.error;
-                else resDiv.innerText = data.result;
-            } catch (e) { resDiv.innerText = "Network Error"; }
-        }
-
-        // 8. Image Processing API
-        async function processImage(mode) {
-            const input = document.getElementById('imageInput');
-            if(input.files.length === 0) { alert("Select an image first"); return; }
-            
-            const formData = new FormData();
-            formData.append('file', input.files[0]);
-            formData.append('sbox_id', currentSboxId);
-            formData.append('mode', mode);
-
-            document.getElementById('imgPlaceholder').innerText = "Processing...";
-            
-            try {
-                const res = await fetch('/api/process-image', { method: 'POST', body: formData });
-                const data = await res.json();
-                if(data.status === 'success') {
-                    const img = document.getElementById('imageResult');
-                    img.src = data.image_data;
-                    img.classList.remove('hidden');
-                    document.getElementById('imgPlaceholder').classList.add('hidden');
-                } else {
-                    alert("Error: " + data.message);
-                }
-            } catch (e) { alert("Processing Failed"); }
-        }
-
-        // Run
-        init();
+        // Initialize on load
+        window.addEventListener('load', init);
     </script>
 </body>
 </html>
