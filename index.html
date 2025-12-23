@@ -5,6 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>S-box Cryptographic Analyzer</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    gridTemplateColumns: {
+                        '16': 'repeat(16, minmax(0, 1fr))', // Menambahkan support 16 kolom
+                    },
+                    gridTemplateRows: {
+                        '16': 'repeat(16, minmax(0, 1fr))', // Menambahkan support 16 baris
+                    }
+                }
+            }
+        }
+    </script>
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -434,9 +450,7 @@
             } catch(e) { resultBox.innerText = "Network Error"; }
         }
 
-        // --- IMAGE ENCRYPTION LOGIC (ADDED) ---
-        
-        // 1. Setup toggle buttons
+        // --- IMAGE ENCRYPTION LOGIC ---
         function setImgMode(mode) {
             imgMode = mode;
             const btnEnc = document.getElementById('btnImgEnc');
@@ -454,7 +468,6 @@
             }
         }
 
-        // 2. Handle File Selection
         document.getElementById('imageInput').addEventListener('change', function(e) {
             const fileName = e.target.files[0]?.name;
             const nameDisplay = document.getElementById('fileName');
@@ -464,7 +477,6 @@
             }
         });
 
-        // 3. Process Function
         async function processImage() {
             const input = document.getElementById('imageInput');
             const loader = document.getElementById('imgLoader');
@@ -474,7 +486,6 @@
 
             if(input.files.length === 0) { alert("Select an image first"); return; }
             
-            // Show loading
             loader.classList.remove('hidden');
             
             const formData = new FormData();
@@ -487,12 +498,9 @@
                 const data = await res.json();
                 
                 if(data.status === 'success') {
-                    // Update UI with result
                     resultImg.src = data.image_data;
                     resultImg.classList.remove('hidden');
                     placeholder.classList.add('hidden');
-                    
-                    // Setup download
                     downloadLink.href = data.image_data;
                     downloadLink.classList.remove('hidden');
                 } else {
