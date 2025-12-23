@@ -176,7 +176,7 @@
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
                 <div class="flex items-center gap-2 mb-6">
                     <div class="bg-green-100 p-1.5 rounded text-green-600"><i class="fas fa-chart-bar"></i></div>
-                    <h3 class="font-bold text-base text-slate-800">Comprehensive Metrics Evaluation</h3>
+                    <h3 class="font-bold text-base text-slate-800">Comprehensive Metrics Evaluation (10 Metrics)</h3>
                 </div>
 
                 <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4" id="metricsGrid">
@@ -356,19 +356,30 @@
             });
         }
 
+        // --- UPDATED: RENDER 10 METRICS CARDS ---
         function renderMetricsCards(m) {
             const container = document.getElementById('metricsGrid');
             container.innerHTML = '';
+            
+            // Definisi 10 Metrik Lengkap
             const metricsDef = [
-                { k: 'NL', label: 'NONLINEARITY', target: '112', icon: 'fa-shield-alt', color: 'text-purple-600', bg: 'bg-purple-100' },
-                { k: 'SAC', label: 'SAC', target: '0.5', icon: 'fa-bolt', color: 'text-blue-600', bg: 'bg-blue-100' },
-                { k: 'BIC_NL', label: 'BIC-NL', target: '112', icon: 'fa-cube', color: 'text-green-600', bg: 'bg-green-100' },
-                { k: 'BIC_SAC', label: 'BIC-SAC', target: '0.5', icon: 'fa-chart-area', color: 'text-orange-600', bg: 'bg-orange-100' },
-                { k: 'LAP', label: 'LAP', target: 'Low', icon: 'fa-balance-scale', color: 'text-pink-600', bg: 'bg-pink-100' }
+                { k: 'NL', label: 'NONLINEARITY', target: 'Target: 112', icon: 'fa-shield-alt', color: 'text-purple-600', bg: 'bg-purple-100' },
+                { k: 'SAC', label: 'SAC', target: 'Ideal: 0.5', icon: 'fa-bolt', color: 'text-blue-600', bg: 'bg-blue-100' },
+                { k: 'BIC_NL', label: 'BIC-NL', target: 'Target: 112', icon: 'fa-cube', color: 'text-green-600', bg: 'bg-green-100' },
+                { k: 'BIC_SAC', label: 'BIC-SAC', target: 'Ideal: 0.5', icon: 'fa-chart-area', color: 'text-orange-600', bg: 'bg-orange-100' },
+                { k: 'LAP', label: 'LIN. APPROX', target: 'Minimize', icon: 'fa-balance-scale', color: 'text-pink-600', bg: 'bg-pink-100' },
+                
+                // 5 Metrik Tambahan
+                { k: 'DAP', label: 'DIFF. APPROX', target: 'Minimize', icon: 'fa-compress-arrows-alt', color: 'text-teal-600', bg: 'bg-teal-100' },
+                { k: 'DU', label: 'DIFF. UNIFORMITY', target: 'Ideal: 4', icon: 'fa-code-branch', color: 'text-indigo-600', bg: 'bg-indigo-100' },
+                { k: 'AD', label: 'ALG. DEGREE', target: 'Max: 7', icon: 'fa-superscript', color: 'text-red-600', bg: 'bg-red-100' },
+                { k: 'TO', label: 'TRANSP. ORDER', target: 'Minimize', icon: 'fa-eye', color: 'text-cyan-600', bg: 'bg-cyan-100' },
+                { k: 'CI', label: 'CORR. IMMUNITY', target: 'Maximize', icon: 'fa-lock', color: 'text-slate-600', bg: 'bg-slate-100' }
             ];
 
             metricsDef.forEach(def => {
                 let val = m[def.k];
+                // Format decimal values, leave integers alone
                 if(typeof val === 'number' && val % 1 !== 0) val = val.toFixed(4);
                 
                 const html = `
@@ -378,7 +389,7 @@
                             <span class="text-[9px] font-bold text-slate-500 uppercase">${def.label}</span>
                         </div>
                         <div class="text-lg font-bold text-slate-800 leading-none mb-1">${val}</div>
-                        <div class="text-[8px] text-slate-400 font-medium">Target: ${def.target}</div>
+                        <div class="text-[8px] text-slate-400 font-medium">${def.target}</div>
                     </div>
                 `;
                 container.innerHTML += html;
@@ -388,7 +399,16 @@
         function updateCharts(candidate) {
             const m = candidate.metrics;
             const radarCtx = document.getElementById('radarChart').getContext('2d');
-            const radarData = [m.NL/112, m.SAC*2, m.BIC_NL/112, m.BIC_SAC*2, 1-(m.LAP*4), 1-(m.DAP*10)];
+            
+            // Normalize data for chart (example logic)
+            const radarData = [
+                m.NL/112, 
+                m.SAC*2, 
+                m.BIC_NL/112, 
+                m.BIC_SAC*2, 
+                1-(m.LAP*4), 
+                1-(m.DAP*10)
+            ];
             
             if(radarChartInstance) radarChartInstance.destroy();
             radarChartInstance = new Chart(radarCtx, {
