@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🔐 S-Box Analyzer & Crypto Explorer</title>
+    <title>S-box Cryptographic Analyzer</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
             margin: 0;
@@ -12,7 +13,7 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
@@ -22,979 +23,917 @@
             max-width: 1400px;
             margin: 0 auto;
             background: white;
-            border-radius: 20px;
+            border-radius: 24px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             overflow: hidden;
         }
 
+        /* Header */
         .header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 30px;
-            text-align: center;
-        }
-
-        .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-        }
-
-        .team-info {
-            background: rgba(255,255,255,0.1);
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 15px;
-        }
-
-        .team-info p {
-            margin: 5px 0;
-            font-size: 0.9em;
-        }
-
-        .tabs {
+            padding: 30px 40px;
             display: flex;
-            background: #f5f5f5;
-            border-bottom: 3px solid #667eea;
-            overflow-x: auto;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .tab {
-            flex: 1;
-            padding: 20px;
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
             background: white;
-            border: none;
-            cursor: pointer;
-            font-size: 1em;
-            font-weight: 600;
-            color: #666;
-            transition: all 0.3s;
-            min-width: 150px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
         }
 
-        .tab:hover {
-            background: #f0f0f0;
+        .header-title h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 4px;
         }
 
-        .tab.active {
-            background: #667eea;
+        .header-title p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-header {
+            padding: 10px 20px;
+            border: 2px solid white;
+            background: transparent;
             color: white;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
         }
 
-        .tab-content {
-            display: none;
+        .btn-header:hover {
+            background: white;
+            color: #667eea;
+        }
+
+        /* Main Content */
+        .main-content {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 30px;
             padding: 30px;
-            animation: fadeIn 0.5s;
         }
 
-        .tab-content.active {
-            display: block;
+        /* Sidebar */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        .card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
 
-        .control-panel {
-            background: #f9f9f9;
-            padding: 20px;
-            border-radius: 10px;
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
             margin-bottom: 20px;
+            cursor: pointer;
         }
 
-        .form-group {
+        .card-header h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .expand-icon {
+            margin-left: auto;
+            transition: transform 0.3s;
+        }
+
+        .expand-icon.expanded {
+            transform: rotate(90deg);
+        }
+
+        /* Search & Filter */
+        .search-box {
+            position: relative;
             margin-bottom: 15px;
         }
 
-        label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #333;
-        }
-
-        select, input, textarea {
+        .search-box input {
             width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 1em;
-            transition: border 0.3s;
+            padding: 12px 40px 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: border-color 0.3s;
         }
 
-        select:focus, input:focus, textarea:focus {
+        .search-box input:focus {
             outline: none;
             border-color: #667eea;
         }
 
-        textarea {
-            resize: vertical;
-            font-family: 'Courier New', monospace;
+        .search-icon {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
         }
 
-        button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 15px 30px;
+        .filter-group {
+            margin-bottom: 20px;
+        }
+
+        .filter-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #6b7280;
+            margin-bottom: 8px;
+        }
+
+        select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid #e5e7eb;
             border-radius: 8px;
-            font-size: 1em;
-            font-weight: 600;
+            font-size: 14px;
+            background: white;
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
         }
 
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-
-        button:active {
-            transform: translateY(0);
-        }
-
-        .output-box {
-            background: #f5f5f5;
-            padding: 20px;
+        /* S-box Config */
+        .sbox-select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
             border-radius: 10px;
-            margin-top: 20px;
-            border-left: 4px solid #667eea;
-        }
-
-        .output-box h3 {
-            margin-bottom: 10px;
-            color: #667eea;
-        }
-
-        .output-box pre {
+            font-size: 15px;
+            font-weight: 500;
+            margin-bottom: 16px;
             background: white;
-            padding: 15px;
-            border-radius: 5px;
-            overflow-x: auto;
-            font-family: 'Courier New', monospace;
-            font-size: 0.9em;
         }
 
-        .sbox-grid {
+        .sbox-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #667eea;
+            color: white;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        .properties-grid {
             display: grid;
-            grid-template-columns: repeat(16, 1fr);
-            gap: 2px;
-            background: white;
-            padding: 10px;
-            border-radius: 10px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin: 20px 0;
+        }
+
+        .property-item {
+            text-align: center;
+        }
+
+        .property-label {
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .property-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: #d1fae5;
+            color: #065f46;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 16px;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
             margin-top: 20px;
         }
 
-        .sbox-cell {
+        .btn {
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
+
+        /* Matrix Visualization */
+        .matrix-grid {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 4px;
+            margin-top: 16px;
+        }
+
+        .matrix-cell {
             aspect-ratio: 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.7em;
-            font-weight: 600;
-            border-radius: 3px;
-            transition: transform 0.2s;
-        }
-
-        .sbox-cell:hover {
-            transform: scale(1.1);
-            z-index: 10;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-        }
-
-        .metrics-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            background: white;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        .metrics-table th,
-        .metrics-table td {
-            padding: 15px;
-            text-align: left;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .metrics-table th {
             background: #667eea;
             color: white;
+            border-radius: 4px;
+            font-size: 11px;
             font-weight: 600;
         }
 
-        .metrics-table tr:hover {
-            background: #f9f9f9;
+        .matrix-cell.zero {
+            background: #e5e7eb;
+            color: #6b7280;
         }
 
-        .image-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
+        .matrix-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #e5e7eb;
         }
 
-        .image-box {
-            background: #f9f9f9;
-            padding: 15px;
-            border-radius: 10px;
+        .matrix-stat {
             text-align: center;
         }
 
-        .image-box img {
-            max-width: 100%;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        .matrix-stat-label {
+            font-size: 11px;
+            color: #6b7280;
+            margin-bottom: 4px;
         }
 
-        .image-box h4 {
-            margin: 10px 0;
-            color: #333;
+        .matrix-stat-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1f2937;
         }
 
-        .file-input-wrapper {
-            position: relative;
-            overflow: hidden;
+        /* Optimal Candidate */
+        .optimal-card {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            border: 2px solid #10b981;
+        }
+
+        .optimal-badge {
             display: inline-block;
+            padding: 4px 12px;
+            background: #065f46;
+            color: white;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .btn-optimal {
             width: 100%;
-        }
-
-        .file-input-wrapper input[type=file] {
-            position: absolute;
-            left: -9999px;
-        }
-
-        .file-input-label {
-            display: block;
-            padding: 12px;
-            background: white;
-            border: 2px dashed #667eea;
-            border-radius: 8px;
+            padding: 14px;
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 14px;
             cursor: pointer;
+            margin-top: 16px;
+        }
+
+        /* Right Panel */
+        .right-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* S-box Table */
+        .sbox-table-container {
+            overflow: auto;
+            max-height: 500px;
+        }
+
+        .sbox-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 4px;
+        }
+
+        .sbox-table th,
+        .sbox-table td {
+            width: 40px;
+            height: 40px;
             text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .sbox-table th {
+            background: #f3f4f6;
+            color: #6b7280;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .sbox-table td {
+            background: #d1fae5;
+            color: #065f46;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .sbox-table td:hover {
+            background: #10b981;
+            color: white;
+            transform: scale(1.1);
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
+        }
+
+        /* Color modes */
+        .sbox-table td.low-sac {
+            background: #fecaca;
+            color: #991b1b;
+        }
+
+        .sbox-table td.high-sac {
+            background: #a5f3fc;
+            color: #155e75;
+        }
+
+        .table-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .color-mode-btns {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            border: 2px solid #e5e7eb;
+            background: white;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
             transition: all 0.3s;
         }
 
-        .file-input-label:hover {
-            background: #f0f0ff;
-            border-color: #764ba2;
+        .btn-sm.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
         }
 
-        .loading {
-            display: none;
-            text-align: center;
+        /* Metrics Cards */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+        }
+
+        .metric-card {
             padding: 20px;
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
         }
 
-        .loading.active {
-            display: block;
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+        }
+
+        .metric-card.purple { background: #ede9fe; }
+        .metric-card.purple::before { background: #8b5cf6; }
+        .metric-card .metric-icon.purple { color: #8b5cf6; }
+
+        .metric-card.blue { background: #dbeafe; }
+        .metric-card.blue::before { background: #3b82f6; }
+        .metric-card .metric-icon.blue { color: #3b82f6; }
+
+        .metric-card.green { background: #d1fae5; }
+        .metric-card.green::before { background: #10b981; }
+        .metric-card .metric-icon.green { color: #10b981; }
+
+        .metric-card.orange { background: #fed7aa; }
+        .metric-card.orange::before { background: #f97316; }
+        .metric-card .metric-icon.orange { color: #f97316; }
+
+        .metric-card.pink { background: #fce7f3; }
+        .metric-card.pink::before { background: #ec4899; }
+        .metric-card .metric-icon.pink { color: #ec4899; }
+
+        .metric-card.cyan { background: #cffafe; }
+        .metric-card.cyan::before { background: #06b6d4; }
+        .metric-card .metric-icon.cyan { color: #06b6d4; }
+
+        .metric-card.teal { background: #ccfbf1; }
+        .metric-card.teal::before { background: #14b8a6; }
+        .metric-card .metric-icon.teal { color: #14b8a6; }
+
+        .metric-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .metric-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #6b7280;
+        }
+
+        .metric-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .metric-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+
+        .metric-bar {
+            height: 6px;
+            background: rgba(0,0,0,0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .metric-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.5s;
+        }
+
+        .metric-target {
+            font-size: 11px;
+            color: #6b7280;
+            margin-top: 4px;
+        }
+
+        /* Charts */
+        .chart-container {
+            padding: 24px;
+            background: white;
+            border-radius: 16px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .chart-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .chart-header h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        /* Text Encryption Module */
+        .encryption-module {
+            background: #f9fafb;
+            border-radius: 16px;
+            padding: 24px;
+        }
+
+        .module-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .module-header h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .encryption-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .input-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            resize: vertical;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .operation-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .btn-encrypt {
+            flex: 1;
+            padding: 14px;
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .btn-decrypt {
+            flex: 1;
+            padding: 14px;
+            background: #f97316;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .quick-examples {
+            background: #fffbeb;
+            border: 2px solid #fbbf24;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .quick-examples h4 {
+            font-size: 14px;
+            font-weight: 700;
+            color: #92400e;
+            margin-bottom: 12px;
+        }
+
+        .examples-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .example-item {
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .example-item:hover {
+            background: #fef3c7;
+            transform: translateY(-2px);
+        }
+
+        .example-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #78350f;
+            margin-bottom: 4px;
+        }
+
+        .example-value {
+            font-size: 13px;
+            color: #1f2937;
+        }
+
+        /* Footer */
+        .footer {
+            padding: 20px 40px;
+            background: #f9fafb;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 300px 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .encryption-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .examples-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6b7280;
         }
 
         .spinner {
-            border: 4px solid #f3f3f3;
+            border: 4px solid #f3f4f6;
             border-top: 4px solid #667eea;
             border-radius: 50%;
             width: 40px;
             height: 40px;
             animation: spin 1s linear infinite;
-            margin: 0 auto;
+            margin: 0 auto 16px;
         }
 
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-
-        .comparison-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .metric-card {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            text-align: center;
-        }
-
-        .metric-card h4 {
-            color: #667eea;
-            margin-bottom: 10px;
-        }
-
-        .metric-value {
-            font-size: 2em;
-            font-weight: 700;
-            color: #333;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 0.8em;
-            font-weight: 600;
-            margin-top: 10px;
-        }
-
-        .badge-excellent {
-            background: #4caf50;
-            color: white;
-        }
-
-        .badge-good {
-            background: #2196f3;
-            color: white;
-        }
-
-        .badge-fair {
-            background: #ff9800;
-            color: white;
-        }
-
-        .badge-poor {
-            background: #f44336;
-            color: white;
-        }
-
-        @media (max-width: 768px) {
-            .header h1 {
-                font-size: 1.8em;
-            }
-
-            .tabs {
-                flex-wrap: wrap;
-            }
-
-            .tab {
-                min-width: 100%;
-            }
-
-            .sbox-grid {
-                grid-template-columns: repeat(8, 1fr);
-            }
-
-            .image-container {
-                grid-template-columns: 1fr;
-            }
-        }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- Header -->
         <div class="header">
-            <h1>🔐 S-Box Analyzer & Crypto Explorer</h1>
-            <p>Advanced Cryptographic Analysis Tool</p>
-            <div class="team-info">
-                <p><strong>Kelompok:</strong></p>
-                <p>Faisal Fahmi Yuliawan (2304130051)</p>
-                <p>Muhammad Rifki Rifaldi (2304130052)</p>
-                <p>Muhamad 'Ariq Mu'afa Al-Ghifari (2304130059)</p>
-                <p>Ryan Hidayat (2304130075)</p>
+            <div class="header-left">
+                <div class="logo">🔐</div>
+                <div class="header-title">
+                    <h1>S-box Cryptographic Analyzer</h1>
+                    <p>Advanced Substitution Box Matrix Analyzer</p>
+                </div>
+            </div>
+            <div class="header-buttons">
+                <button class="btn-header">📊 S-boxes</button>
+                <button class="btn-header">🔧 Metrics</button>
+                <button class="btn-header">2025-12-23</button>
             </div>
         </div>
 
-        <div class="tabs">
-            <button class="tab active" onclick="switchTab('overview')">📊 Overview</button>
-            <button class="tab" onclick="switchTab('visualize')">🔥 S-Box Heatmap</button>
-            <button class="tab" onclick="switchTab('text-crypto')">📝 Text Encryption</button>
-            <button class="tab" onclick="switchTab('image-crypto')">🖼️ Image Encryption</button>
-            <button class="tab" onclick="switchTab('metrics')">📈 Metrics Analysis</button>
-            <button class="tab" onclick="switchTab('compare')">⚖️ Compare S-Boxes</button>
-        </div>
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <!-- Search & Filter -->
+                <div class="card">
+                    <div class="filter-group">
+                        <div class="filter-label">
+                            🔍 Search S-boxes
+                        </div>
+                        <div class="search-box">
+                            <input type="text" id="searchInput" placeholder="Search by ID, name, or type...">
+                            <span class="search-icon">🔍</span>
+                        </div>
+                    </div>
 
-        <!-- Overview Tab -->
-        <div id="overview" class="tab-content active">
-            <h2>Welcome to S-Box Analyzer</h2>
-            <p>This tool provides comprehensive analysis of 128 different S-box candidates including AES standard and proposed alternatives.</p>
-            
-            <div class="comparison-grid">
-                <div class="metric-card">
-                    <h4>Total S-Boxes</h4>
-                    <div class="metric-value" id="total-sboxes">128</div>
-                </div>
-                <div class="metric-card">
-                    <h4>Metrics Analyzed</h4>
-                    <div class="metric-value">10</div>
-                </div>
-                <div class="metric-card">
-                    <h4>Best Candidate</h4>
-                    <div class="metric-value" style="font-size: 1.5em;">K44</div>
-                    <span class="badge badge-excellent">Proposed</span>
-                </div>
-            </div>
+                    <div class="filter-group">
+                        <div class="filter-label">
+                            📂 Category Filter
+                        </div>
+                        <select id="categoryFilter">
+                            <option value="all">All Categories</option>
+                            <option value="standard">Standard</option>
+                            <option value="paper">Paper</option>
+                            <option value="proposed">Proposed</option>
+                            <option value="generated">Generated</option>
+                        </select>
+                    </div>
 
-            <div class="output-box">
-                <h3>About This Tool</h3>
-                <p>This application analyzes S-boxes using 10 cryptographic metrics:</p>
-                <ul style="margin-left: 20px; margin-top: 10px;">
-                    <li><strong>NL (Nonlinearity):</strong> Resistance to linear cryptanalysis</li>
-                    <li><strong>SAC (Strict Avalanche Criterion):</strong> Output bit change rate</li>
-                    <li><strong>BIC-NL:</strong> Bit Independence Criterion - Nonlinearity</li>
-                    <li><strong>BIC-SAC:</strong> Bit Independence Criterion - SAC</li>
-                    <li><strong>LAP:</strong> Linear Approximation Probability</li>
-                    <li><strong>DAP:</strong> Differential Approximation Probability</li>
-                    <li><strong>DU:</strong> Differential Uniformity</li>
-                    <li><strong>AD:</strong> Algebraic Degree</li>
-                    <li><strong>TO:</strong> Transparency Order</li>
-                    <li><strong>CI:</strong> Correlation Immunity</li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- Visualize Tab -->
-        <div id="visualize" class="tab-content">
-            <div class="control-panel">
-                <div class="form-group">
-                    <label for="sbox-select-viz">Select S-Box:</label>
-                    <select id="sbox-select-viz" onchange="loadSBoxVisualization()">
-                        <option value="">Loading...</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="output-box">
-                <h3>S-Box Heatmap (16×16 Grid)</h3>
-                <div id="sbox-grid" class="sbox-grid"></div>
-            </div>
-        </div>
-
-        <!-- Text Crypto Tab -->
-        <div id="text-crypto" class="tab-content">
-            <div class="control-panel">
-                <div class="form-group">
-                    <label for="sbox-select-text">Select S-Box:</label>
-                    <select id="sbox-select-text">
-                        <option value="">Loading...</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="text-key">Encryption Key:</label>
-                    <input type="text" id="text-key" placeholder="Enter encryption key" value="secret123">
-                </div>
-
-                <div class="form-group">
-                    <label for="plaintext">Plaintext:</label>
-                    <textarea id="plaintext" rows="4" placeholder="Enter text to encrypt...">Hello World!</textarea>
-                </div>
-
-                <button onclick="encryptText()">🔒 Encrypt Text</button>
-                <button onclick="decryptText()">🔓 Decrypt Text</button>
-            </div>
-
-            <div class="output-box">
-                <h3>Encrypted Output (Hex)</h3>
-                <pre id="ciphertext-output">Click Encrypt to see result...</pre>
-            </div>
-
-            <div class="output-box">
-                <h3>Decrypted Output</h3>
-                <pre id="decrypted-output">Click Decrypt to see result...</pre>
-            </div>
-        </div>
-
-        <!-- Image Crypto Tab -->
-        <div id="image-crypto" class="tab-content">
-            <div class="control-panel">
-                <div class="form-group">
-                    <label for="sbox-select-image">Select S-Box:</label>
-                    <select id="sbox-select-image">
-                        <option value="">Loading...</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Upload Image:</label>
-                    <div class="file-input-wrapper">
-                        <label class="file-input-label" for="image-input">
-                            📁 Click to select image (PNG, JPG)
-                        </label>
-                        <input type="file" id="image-input" accept="image/*" onchange="previewImage()">
+                    <div class="filter-group">
+                        <div class="filter-label">
+                            💻 Display Format
+                        </div>
+                        <select id="displayFormat">
+                            <option value="decimal">Decimal (0-255)</option>
+                            <option value="hex">Hexadecimal (0x00-0xFF)</option>
+                        </select>
                     </div>
                 </div>
 
-                <button onclick="encryptImage()">🔒 Encrypt Image</button>
-                <button onclick="decryptImage()">🔓 Decrypt Image</button>
-            </div>
+                <!-- S-box Configuration -->
+                <div class="card">
+                    <div class="card-header">
+                        <span>▶️</span>
+                        <h3>Select S-box Configuration</h3>
+                    </div>
 
-            <div class="loading" id="image-loading">
-                <div class="spinner"></div>
-                <p>Processing image...</p>
-            </div>
-
-            <div class="image-container" id="image-results"></div>
-        </div>
-
-        <!-- Metrics Tab -->
-        <div id="metrics" class="tab-content">
-            <div class="control-panel">
-                <div class="form-group">
-                    <label for="sbox-select-metrics">Select S-Box:</label>
-                    <select id="sbox-select-metrics" onchange="loadMetrics()">
-                        <option value="">Loading...</option>
+                    <select id="sboxSelect" class="sbox-select">
+                        <option value="AES_STD">AES Standard (FIPS 197)</option>
                     </select>
+
+                    <span class="sbox-badge">Current Selected</span>
+
+                    <div class="properties-grid">
+                        <div class="property-item">
+                            <div class="property-label">Matrix Size</div>
+                            <div class="property-value" id="matrixSize">8×8</div>
+                        </div>
+                        <div class="property-item">
+                            <div class="property-label">Total Bytes</div>
+                            <div class="property-value" id="totalBytes">256</div>
+                        </div>
+                        <div class="property-item">
+                            <div class="property-label">Nonlinearity</div>
+                            <div class="property-value" id="nlValue">112</div>
+                        </div>
+                        <div class="property-item">
+                            <div class="property-label">SAC</div>
+                            <div class="property-value" id="sacValue">0.5049</div>
+                        </div>
+                    </div>
+
+                    <div class="status-badge">
+                        ✅ Navigation Enabled
+                    </div>
+
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" onclick="copySbox()">📋 Copy</button>
+                        <button class="btn btn-secondary" onclick="applySbox()">✓ Apply</button>
+                    </div>
+                </div>
+
+                <!-- Affine Transformation Matrix -->
+                <div class="card">
+                    <div class="card-header">
+                        <span>🔄</span>
+                        <h3>Affine Transformation Matrix</h3>
+                    </div>
+                    <div class="matrix-grid" id="affineMatrix"></div>
+                    <div class="matrix-stats">
+                        <div class="matrix-stat">
+                            <div class="matrix-stat-label">Active Bits</div>
+                            <div class="matrix-stat-value" id="activeBits">40</div>
+                        </div>
+                        <div class="matrix-stat">
+                            <div class="matrix-stat-label">Inactive Bits</div>
+                            <div class="matrix-stat-value" id="inactiveBits">24</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Optimal Candidate -->
+                <div class="card optimal-card">
+                    <span class="optimal-badge">🎯 Optimal Performance Candidate</span>
+                    <h3 style="margin-bottom: 8px;">Random Candidate #70</h3>
+                    <p style="font-size: 13px; color: #065f46;">Optimization Score: 0.00178</p>
+                    <button class="btn-optimal">View Analysis</button>
                 </div>
             </div>
 
-            <div id="metrics-display"></div>
-        </div>
+            <!-- Right Panel -->
+            <div class="right-panel">
+                <!-- S-box Table -->
+                <div class="card">
+                    <div class="table-controls">
+                        <h3>Substitution Table Visualization (16×16 Matrix)</h3>
+                        <div class="color-mode-btns">
+                            <button class="btn-sm active" onclick="setColorMode('normal')">🟢 Low (SAC)</button>
+                            <button class="btn-sm" onclick="setColorMode('high')">🔵 High (SAC)</button>
+                        </div>
+                    </div>
+                    <div class="sbox-table-container">
+                        <table class="sbox-table" id="sboxTable">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th>
+                                    <th>8</th><th>9</th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th><th>F</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sboxTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
 
-        <!-- Compare Tab -->
-        <div id="compare" class="tab-content">
-            <h2>Top 10 S-Boxes Comparison</h2>
-            <div id="comparison-table"></div>
-        </div>
-    </div>
+                <!-- Radar Chart -->
+                <div class="card">
+                    <div class="chart-header">
+                        <span>📊</span>
+                        <h3>Cryptographic Security Metrics Distribution</h3>
+                    </div>
+                    <canvas id="radarChart" width="400" height="300"></canvas>
+                    <p style="text-align: center; font-size: 12px; color: #6b7280; margin-top: 16px;">
+                        Higher values indicate better performance across respective cryptographic properties
+                    </p>
+                </div>
 
-    <script>
-        let allData = null;
-        let currentImage = null;
-        let encryptedImageData = null;
-
-        // Initialize
-        async function init() {
-            try {
-                const response = await fetch('/api/data');
-                allData = await response.json();
-                populateSelects();
-                loadTopComparison();
-            } catch (error) {
-                console.error('Error loading data:', error);
-                alert('Error connecting to server. Please check if the backend is running.');
-            }
-        }
-
-        function populateSelects() {
-            const candidates = allData.candidates;
-            const options = candidates.map(c => 
-                `<option value="${c.id}">${c.name}</option>`
-            ).join('');
-
-            document.getElementById('sbox-select-viz').innerHTML = options;
-            document.getElementById('sbox-select-text').innerHTML = options;
-            document.getElementById('sbox-select-image').innerHTML = options;
-            document.getElementById('sbox-select-metrics').innerHTML = options;
-
-            // Load default visualizations
-            loadSBoxVisualization();
-            loadMetrics();
-        }
-
-        function switchTab(tabName) {
-            // Hide all tabs
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-
-            // Show selected tab
-            document.getElementById(tabName).classList.add('active');
-            event.target.classList.add('active');
-        }
-
-        async function loadSBoxVisualization() {
-            const sboxId = document.getElementById('sbox-select-viz').value;
-            try {
-                const response = await fetch(`/api/sbox-values/${sboxId}`);
-                const data = await response.json();
-                
-                const grid = document.getElementById('sbox-grid');
-                grid.innerHTML = '';
-
-                data.sbox.forEach((val, idx) => {
-                    const cell = document.createElement('div');
-                    cell.className = 'sbox-cell';
-                    cell.textContent = val.toString(16).toUpperCase().padStart(2, '0');
+                <!-- Metrics Cards -->
+                <div class="card">
+                    <h3 style="margin-bottom: 20px;">📋 Comprehensive Metrics Evaluation</h3>
                     
-                    // Color based on value
-                    const hue = (val / 255) * 360;
-                    cell.style.background = `hsl(${hue}, 70%, 60%)`;
-                    cell.style.color = val > 128 ? 'white' : 'black';
-                    
-                    cell.title = `Index: ${idx} | Value: ${val}`;
-                    grid.appendChild(cell);
-                });
-            } catch (error) {
-                console.error('Error loading S-box:', error);
-            }
-        }
-
-        async function encryptText() {
-            const sboxId = document.getElementById('sbox-select-text').value;
-            const key = document.getElementById('text-key').value;
-            const text = document.getElementById('plaintext').value;
-
-            if (!text || !key) {
-                alert('Please enter both text and key');
-                return;
-            }
-
-            try {
-                const response = await fetch('/api/encrypt-text', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ text, key, sbox_id: sboxId })
-                });
-
-                const data = await response.json();
-                if (data.error) {
-                    alert('Error: ' + data.error);
-                } else {
-                    document.getElementById('ciphertext-output').textContent = data.result;
-                }
-            } catch (error) {
-                console.error('Encryption error:', error);
-                alert('Encryption failed');
-            }
-        }
-
-        async function decryptText() {
-            const sboxId = document.getElementById('sbox-select-text').value;
-            const key = document.getElementById('text-key').value;
-            const ciphertext = document.getElementById('ciphertext-output').textContent;
-
-            if (ciphertext === 'Click Encrypt to see result...') {
-                alert('Please encrypt text first');
-                return;
-            }
-
-            try {
-                const response = await fetch('/api/decrypt-text', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ text: ciphertext, key, sbox_id: sboxId })
-                });
-
-                const data = await response.json();
-                if (data.error) {
-                    alert('Error: ' + data.error);
-                } else {
-                    document.getElementById('decrypted-output').textContent = data.result;
-                }
-            } catch (error) {
-                console.error('Decryption error:', error);
-                alert('Decryption failed');
-            }
-        }
-
-        function previewImage() {
-            const file = document.getElementById('image-input').files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    currentImage = file;
-                    const results = document.getElementById('image-results');
-                    results.innerHTML = `
-                        <div class="image-box">
-                            <h4>Original Image</h4>
-                            <img src="${e.target.result}" alt="Original">
-                        </div>
-                    `;
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-
-        async function encryptImage() {
-            if (!currentImage) {
-                alert('Please select an image first');
-                return;
-            }
-
-            const sboxId = document.getElementById('sbox-select-image').value;
-            const formData = new FormData();
-            formData.append('file', currentImage);
-            formData.append('sbox_id', sboxId);
-            formData.append('mode', 'encrypt');
-
-            document.getElementById('image-loading').classList.add('active');
-
-            try {
-                const response = await fetch('/api/process-image', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const data = await response.json();
-                document.getElementById('image-loading').classList.remove('active');
-
-                if (data.status === 'success') {
-                    encryptedImageData = data.image_data;
-                    const results = document.getElementById('image-results');
-                    results.innerHTML += `
-                        <div class="image-box">
-                            <h4>Encrypted Image</h4>
-                            <img src="${data.image_data}" alt="Encrypted">
-                        </div>
-                    `;
-                } else {
-                    alert('Encryption failed: ' + data.message);
-                }
-            } catch (error) {
-                document.getElementById('image-loading').classList.remove('active');
-                console.error('Image encryption error:', error);
-                alert('Image encryption failed');
-            }
-        }
-
-        async function decryptImage() {
-            if (!encryptedImageData) {
-                alert('Please encrypt an image first');
-                return;
-            }
-
-            const sboxId = document.getElementById('sbox-select-image').value;
-            
-            // Convert base64 to blob
-            const blob = await fetch(encryptedImageData).then(r => r.blob());
-            const file = new File([blob], 'encrypted.png', { type: 'image/png' });
-
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('sbox_id', sboxId);
-            formData.append('mode', 'decrypt');
-
-            document.getElementById('image-loading').classList.add('active');
-
-            try {
-                const response = await fetch('/api/process-image', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const data = await response.json();
-                document.getElementById('image-loading').classList.remove('active');
-
-                if (data.status === 'success') {
-                    const results = document.getElementById('image-results');
-                    results.innerHTML += `
-                        <div class="image-box">
-                            <h4>Decrypted Image</h4>
-                            <img src="${data.image_data}" alt="Decrypted">
-                        </div>
-                    `;
-                } else {
-                    alert('Decryption failed: ' + data.message);
-                }
-            } catch (error) {
-                document.getElementById('image-loading').classList.remove('active');
-                console.error('Image decryption error:', error);
-                alert('Image decryption failed');
-            }
-        }
-
-        function loadMetrics() {
-            const sboxId = document.getElementById('sbox-select-metrics').value;
-            const candidate = allData.candidates.find(c => c.id === sboxId);
-            
-            if (!candidate) return;
-
-            const m = candidate.metrics;
-            const display = document.getElementById('metrics-display');
-
-            function getBadge(metric, value) {
-                // Define thresholds for each metric
-                const thresholds = {
-                    NL: { excellent: 112, good: 110, fair: 108 },
-                    SAC: { excellent: [0.495, 0.505], good: [0.49, 0.51], fair: [0.48, 0.52] },
-                    BIC_SAC: { excellent: [0.495, 0.505], good: [0.49, 0.51], fair: [0.48, 0.52] }
-                };
-
-                if (metric === 'NL') {
-                    if (value >= 112) return 'excellent';
-                    if (value >= 110) return 'good';
-                    if (value >= 108) return 'fair';
-                    return 'poor';
-                } else if (metric === 'SAC' || metric === 'BIC_SAC') {
-                    const [min, max] = thresholds[metric].excellent;
-                    if (value >= min && value <= max) return 'excellent';
-                    const [min2, max2] = thresholds[metric].good;
-                    if (value >= min2 && value <= max2) return 'good';
-                    return 'fair';
-                }
-                return 'good';
-            }
-
-            display.innerHTML = `
-                <div class="comparison-grid">
-                    <div class="metric-card">
-                        <h4>Nonlinearity (NL)</h4>
-                        <div class="metric-value">${m.NL}</div>
-                        <span class="badge badge-${getBadge('NL', m.NL)}">Max: 112</span>
-                    </div>
-                    <div class="metric-card">
-                        <h4>SAC</h4>
-                        <div class="metric-value">${m.SAC.toFixed(5)}</div>
-                        <span class="badge badge-${getBadge('SAC', m.SAC)}">Ideal: 0.5</span>
-                    </div>
-                    <div class="metric-card">
-                        <h4>BIC-NL</h4>
-                        <div class="metric-value">${m.BIC_NL}</div>
-                        <span class="badge badge-${getBadge('NL', m.BIC_NL)}">Max: 112</span>
-                    </div>
-                    <div class="metric-card">
-                        <h4>BIC-SAC</h4>
-                        <div class="metric-value">${m.BIC_SAC.toFixed(5)}</div>
-                        <span class="badge badge-${getBadge('BIC_SAC', m.BIC_SAC)}">Ideal: 0.5</span>
-                    </div>
-                    <div class="metric-card">
-                        <h4>LAP</h4>
-                        <div class="metric-value">${m.LAP.toFixed(6)}</div>
-                        <span class="badge badge-good">Min Better</span>
-                    </div>
-                    <div class="metric-card">
-                        <h4>DAP</h4>
-                        <div class="metric-value">${m.DAP.toFixed(6)}</div>
-                        <span class="badge badge-good">Min Better</span>
-                    </div>
-                    <div class="metric-card">
-                        <h4>Diff. Uniformity</h4>
-                        <div class="metric-value">${m.DU}</div>
-                        <span class="badge badge-${m.DU === 4 ? 'excellent' : 'good'}">Min: 4</span>
-                    </div>
-                    <div class="metric-card">
-                        <h4>Algebraic Degree</h4>
-                        <div class="metric-value">${m.AD}</div>
-                        <span class="badge badge-${m.AD === 7 ? 'excellent' : 'good'}">Max: 7</span>
-                    </div>
-                    <div class="metric-card">
-                        <h4>Transparency Order</h4>
-                        <div class="metric-value">${m.TO.toFixed(6)}</div>
-                        <span class="badge badge-good">Min Better</span>
-                    </div>
-                    <div class="metric-card">
-                        <h4>Corr. Immunity</h4>
-                        <div class="metric-value">${m.CI}</div>
-                        <span class="badge badge-${m.CI >= 5 ? 'excellent' : 'good'}">High Better</span>
-                    </div>
-                </div>
-
-                <div class="output-box" style="margin-top: 30px;">
-                    <h3>Detailed Metrics Table</h3>
-                    <table class="metrics-table">
-                        <thead>
-                            <tr>
-                                <th>Metric</th>
-                                <th>Value</th>
-                                <th>Ideal/Standard</th>
-                                <th>Interpretation</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><strong>Nonlinearity (NL)</strong></td>
-                                <td>${m.NL}</td>
-                                <td>Max (112)</td>
-                                <td>Resistance to linear attacks</td>
-                            </tr>
-                            <tr>
-                                <td><strong>SAC</strong></td>
-                                <td>${m.SAC.toFixed(5)}</td>
-                                <td>0.5</td>
-                                <td>Avalanche effect quality</td>
-                            </tr>
-                            <tr>
-                                <td><strong>BIC-NL</strong></td>
-                                <td>${m.BIC_NL}</td>
-                                <td>Max (112)</td>
-                                <td>Bit independence - nonlinearity</td>
-                            </tr>
-                            <tr>
-                                <td><strong>BIC-SAC</strong></td>
-                                <td>${m.BIC_SAC.toFixed(5)}</td>
-                                <td>0.5</td>
-                                <td>Bit independence - avalanche</td>
-                            </tr>
-                            <tr>
-                                <td><strong>LAP</strong></td>
-                                <td>${m.LAP.toFixed(6)}</td>
-                                <td>Min</td>
-                                <td>Linear attack vulnerability</td>
-                            </tr>
-                            <tr>
-                                <td><strong>DAP</strong></td>
-                                <td>${m.DAP.toFixed(6)}</td>
-                                <td>Min</td>
-                                <td>Differential attack vulnerability</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Differential Uniformity</strong></td>
-                                <td>${m.DU}</td>
-                                <td>Min (4)</td>
-                                <td>Differential cryptanalysis resistance</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Algebraic Degree</strong></td>
-                                <td>${m.AD}</td>
-                                <td>Max (7)</td>
-                                <td>Algebraic attack resistance</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Transparency Order</strong></td>
-                                <td>${m.TO.toFixed(6)}</td>
-                                <td>Min</td>
-                                <td>Linear correlation strength</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Correlation Immunity</strong></td>
-                                <td>${m.CI}</td>
-                                <td>High</td>
-                                <td>Input independence level</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            `;
-        }
-
-        function loadTopComparison() {
-            // Calculate scores and sort
-            const sorted = allData.candidates.map(c => {
-                const m = c.metrics;
-                const score = Math.abs(m.SAC - 0.5) + Math.abs(m.BIC_SAC - 0.5);
-                return { ...c, score };
-            }).sort((a, b) => a.score - b.score);
-
-            const top10 = sorted.slice(0, 10);
-
-            const table = document.getElementById('comparison-table');
-            table.innerHTML = `
-                <table class="metrics-table">
-                    <thead>
-                        <tr>
-                            <th>Rank</th>
-                            <th>Name</th>
-                            <th>Type</th>
-                            <th>NL</th>
-                            <th>SAC</th>
-                            <th>BIC-SAC</th>
-                            <th>Score</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${top10.map((c, idx) => `
-                            <tr>
-                                <td><strong>${idx + 1}</strong></td>
-                                <td>${c.name} ${c.type === 'proposed' ? '🏆' : ''}</td>
-                                <td><span class="badge badge-${c.type === 'proposed' ? 'excellent' : c.type === 'standard' ? 'good' : 'fair'}">${c.type}</span></td>
-                                <td>${c.metrics.NL}</td>
-                                <td>${c.metrics.SAC.toFixed(5)}</td>
-                                <td>${c.metrics.BIC_SAC.toFixed(5)}</td>
-                                <td>${c.score.toFixed(5)}</td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            `;
-        }
-
-        // Initialize on load
-        window.addEventListener('load', init);
-    </script>
-</body>
-</html>
+                    <div class="metrics-grid">
+                        <div class="metric-card purple">
+                            <div class="metric-header">
+                                <div class="metric-label">NONLINEARITY</div>
+                                <div class="metric-icon purple">🔢</div>
