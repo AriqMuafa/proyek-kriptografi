@@ -149,7 +149,7 @@
 
         <section class="col-span-12 xl:col-span-9 space-y-6">
             
-            <div class="grid grid-cols-1 md:grid-cols-12 gap-6 h-auto md:h-[420px]">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6 h-auto">
                 
                 <div class="col-span-12 md:col-span-7 bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col">
                     <div class="flex justify-between items-center mb-4">
@@ -173,7 +173,7 @@
                             <span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span>
                             <span>8</span><span>9</span><span>A</span><span>B</span><span>C</span><span>D</span><span>E</span><span>F</span>
                         </div>
-                        <div id="sboxGrid" class="flex-1 grid grid-cols-16 grid-rows-16 gap-[1px] bg-slate-200 border border-slate-200 rounded overflow-hidden">
+                        <div id="sboxGrid" class="w-full aspect-square grid grid-cols-16 grid-rows-16 gap-[1px] bg-slate-200 border border-slate-200 rounded overflow-hidden">
                             </div>
                     </div>
                 </div>
@@ -182,7 +182,7 @@
                     <h3 class="font-bold text-sm text-slate-700 mb-2 flex items-center gap-2">
                         <i class="fas fa-bolt text-yellow-500"></i> Cryptographic Security Metrics Distribution
                     </h3>
-                    <div class="flex-1 relative flex items-center justify-center">
+                    <div class="flex-1 relative flex items-center justify-center min-h-[300px]">
                         <canvas id="radarChart"></canvas>
                     </div>
                     <p class="text-[10px] text-slate-400 text-center mt-2 italic">Higher values indicate better performance across cryptographic properties</p>
