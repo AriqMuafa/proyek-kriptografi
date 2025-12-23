@@ -2,12 +2,24 @@ import json
 import os
 import io
 import base64
+import time
+from itertools import cycle
 import numpy as np
 from PIL import Image
 from fastapi import FastAPI, File, UploadFile, Form, HTTPException
 from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 
 app = FastAPI()
+
+# Enable CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # --- KONFIGURASI PATH ---
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -22,10 +34,7 @@ except Exception as e:
     print(f"❌ Error loading JSON: {e}")
     SBOX_DATA = {"candidates": []}
 
-# --- BAGIAN 1: LOGIKA MATEMATIKA (DARI NOTEBOOK) ---
-# Salin PAPER_MATRICES dan fungsi inti dari notebook Anda
-# (Saya ringkas disini, pastikan Anda copy paste LENGKAP dari notebook cell 2 & 3)
-
+# --- LOGIKA KRIPTOGRAFI INTI ---
 AES_CONSTANT = 0x63
 IRREDUCIBLE_POLY = 0x11B
 
@@ -77,94 +86,160 @@ def bin_to_matrix(bin_list):
         matrix.append(row)
     return np.array(matrix, dtype=int)
 
-# ⚠️ PENTING: Paste dictionary PAPER_MATRICES lengkap dari notebook Cell 3 disini
+# --- DATA MATRIKS (CONTOH) ---
+# ⚠️ PENTING: Salin semua matriks dari notebook asli Anda ke sini.
+# Pastikan KEY dictionary sesuai dengan ID yang ada di file JSON (misal "K44", "AES_STD")
 PAPER_MATRICES = {
-    "K_44": bin_to_matrix([
+    "AES_STD": np.array([
+        [1, 0, 0, 0, 1, 1, 1, 1],
+        [1, 1, 0, 0, 0, 1, 1, 1],
+        [1, 1, 1, 0, 0, 0, 1, 1],
+        [1, 1, 1, 1, 0, 0, 0, 1],
+        [1, 1, 1, 1, 1, 0, 0, 0],
+        [0, 1, 1, 1, 1, 1, 0, 0],
+        [0, 0, 1, 1, 1, 1, 1, 0],
+        [0, 0, 0, 1, 1, 1, 1, 1]
+    ], dtype=int),
+    "K44": bin_to_matrix([
         "01010111", "10101011", "11010101", "11101010",
         "01110101", "10111010", "01011101", "10101110"
     ]),
-    # ... Tambahkan matriks lain (K_1, dll) jika perlu ...
+     "K1": bin_to_matrix([
+        "00000001", "10000000", "01000000", "00100000",
+        "00010000", "00001000", "00000100", "00000010"
+    ]),
+    # ... TAMBAHKAN K2 - K128 DARI PDF ANDA DI SINI ...
 }
 
-# --- BAGIAN 2: LOGIKA ENKRIPSI GAMBAR (DARI CELL TERAKHIR) ---
-# Fungsi ini diadaptasi dari `encrypt_image_with_sbox` di notebook
+def get_sbox_by_id(sbox_id):
+    # Mapping ID dari JSON ke Key PAPER_MATRICES jika perlu
+    # Disini kita asumsikan ID di JSON sama dengan key di PAPER_MATRICES
+    # Jika tidak ada, fallback ke AES
+    matrix = PAPER_MATRICES.get(sbox_id, PAPER_MATRICES["AES_STD"])
+    return create_sbox(matrix, AES_CONSTANT)
 
-def process_image_crypto(image_bytes, sbox_name, mode='encrypt'):
-    # 1. Validasi S-Box
-    if sbox_name not in PAPER_MATRICES:
-        # Fallback ke K_44 jika nama tidak ditemukan
-        matrix = PAPER_MATRICES["K_44"]
-    else:
-        matrix = PAPER_MATRICES[sbox_name]
+# --- ENDPOINTS ---
 
-    # 2. Buat S-Box
-    sbox = create_sbox(matrix, AES_CONSTANT)
-    
-    # Jika decrypt, kita butuh inverse sbox
-    if mode == 'decrypt':
-        inv_sbox = [0] * 256
-        for i in range(256):
-            inv_sbox[sbox[i]] = i
-        mapping_array = inv_sbox
-    else:
-        mapping_array = sbox
-
-    # 3. Buka Gambar
-    image = Image.open(io.BytesIO(image_bytes))
-    img_array = np.array(image)
-    original_shape = img_array.shape
-
-    # 4. Flatten (Mendatarkan array)
-    if len(original_shape) == 2: # Grayscale
-        flat_img = img_array.flatten()
-    else: # RGB/RGBA
-        flat_img = img_array.reshape(-1)
-
-    # 5. Proses Substitusi (Core Logic)
-    # mapping_array adalah sbox (untuk encrypt) atau inv_sbox (untuk decrypt)
-    processed_flat = np.array([mapping_array[pixel] for pixel in flat_img], dtype=np.uint8)
-
-    # 6. Kembalikan ke bentuk gambar
-    processed_array = processed_flat.reshape(original_shape)
-    result_image = Image.fromarray(processed_array)
-
-    return result_image
-
-# --- BAGIAN 3: ENDPOINTS API ---
-
-@app.get("/")
+@app.get("/", response_class=HTMLResponse)
 def home():
     index_path = os.path.join(BASE_DIR, "index.html")
     if os.path.exists(index_path):
         with open(index_path, "r", encoding="utf-8") as f:
-            return HTMLResponse(f.read())
-    return HTMLResponse("<h1>Error: index.html not found</h1>")
+            return f.read()
+    return "<h1>Error: index.html not found</h1>"
 
 @app.get("/api/data")
-def get_sbox_data():
+def get_data():
     return SBOX_DATA
+
+@app.get("/api/sbox-values/{sbox_id}")
+def get_sbox_values(sbox_id: str):
+    """Mengembalikan nilai S-Box array (0-255) untuk visualisasi grid"""
+    sbox = get_sbox_by_id(sbox_id)
+    return {"sbox": sbox}
+
+# --- TEXT ENCRYPTION/DECRYPTION ---
+
+class TextCryptoRequest(BaseModel):
+    text: str
+    key: str
+    sbox_id: str
+
+@app.post("/api/encrypt-text")
+def encrypt_text_api(payload: TextCryptoRequest):
+    try:
+        sbox = get_sbox_by_id(payload.sbox_id)
+        key_bytes = payload.key.encode('utf-8')
+        if not key_bytes:
+            return JSONResponse({"error": "Key required"}, status_code=400)
+        
+        # Logic: SBox[Char ^ Key]
+        encrypted_bytes = []
+        for i, char in enumerate(payload.text):
+            char_code = ord(char)
+            # Batasi input ke ASCII standard untuk demo ini, atau biarkan utf-8
+            # Simple XOR mixing with key loop
+            k = key_bytes[i % len(key_bytes)]
+            val = sbox[char_code ^ k] if char_code < 256 else char_code
+            encrypted_bytes.append(val)
+        
+        # Return as Hex String
+        hex_output = " ".join([f"{b:02X}" for b in encrypted_bytes])
+        return {"result": hex_output}
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
+
+@app.post("/api/decrypt-text")
+def decrypt_text_api(payload: TextCryptoRequest):
+    try:
+        sbox = get_sbox_by_id(payload.sbox_id)
+        # Generate Inverse SBox
+        inv_sbox = [0] * 256
+        for i, val in enumerate(sbox):
+            inv_sbox[val] = i
+            
+        key_bytes = payload.key.encode('utf-8')
+        if not key_bytes:
+            return JSONResponse({"error": "Key required"}, status_code=400)
+
+        # Parse Hex String
+        try:
+            hex_values = [int(x, 16) for x in payload.text.strip().split()]
+        except:
+             return JSONResponse({"error": "Invalid Hex Format"}, status_code=400)
+
+        decrypted_chars = []
+        for i, val in enumerate(hex_values):
+            if val > 255: continue
+            k = key_bytes[i % len(key_bytes)]
+            # Inverse Logic: InvSBox[Val] ^ Key
+            original_val = inv_sbox[val] ^ k
+            decrypted_chars.append(chr(original_val))
+            
+        return {"result": "".join(decrypted_chars)}
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
+
+# --- IMAGE PROCESSING ---
 
 @app.post("/api/process-image")
 async def process_image(
     file: UploadFile = File(...), 
-    sbox: str = Form(...),
-    mode: str = Form(...) # 'encrypt' atau 'decrypt'
+    sbox_id: str = Form(...),
+    mode: str = Form(...) # 'encrypt' or 'decrypt'
 ):
     try:
         contents = await file.read()
+        sbox = get_sbox_by_id(sbox_id)
         
-        # Jalankan logika pemrosesan
-        result_img = process_image_crypto(contents, sbox, mode)
+        # Setup Mapping Array
+        if mode == 'decrypt':
+            inv_sbox = [0] * 256
+            for i, val in enumerate(sbox):
+                inv_sbox[val] = i
+            mapping = np.array(inv_sbox, dtype=np.uint8)
+        else:
+            mapping = np.array(sbox, dtype=np.uint8)
+
+        # Process Image
+        image = Image.open(io.BytesIO(contents))
+        img_array = np.array(image)
         
-        # Konversi hasil ke Base64 agar bisa ditampilkan di HTML
+        # Handle channels
+        if img_array.ndim == 2: # Grayscale
+             processed_array = mapping[img_array]
+        else: # RGB/RGBA
+             processed_array = mapping[img_array]
+
+        result_image = Image.fromarray(processed_array)
+        
+        # Return Base64
         buffered = io.BytesIO()
-        result_img.save(buffered, format="PNG")
+        result_image.save(buffered, format="PNG")
         img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
         
         return JSONResponse({
             "status": "success",
-            "mode": mode,
-            "sbox": sbox,
             "image_data": f"data:image/png;base64,{img_str}"
         })
         
