@@ -3,256 +3,363 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>S-Box Cryptographic Hub</title>
+    <title>S-Box Cryptographic Analyzer</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Fira+Code&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/prop-types@15.8.1/prop-types.min.js"></script>
-    <script src="https://unpkg.com/recharts@2.10.3/umd/Recharts.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #020617; color: #e2e8f0; }
-        .font-mono { font-family: 'Fira Code', monospace; }
-        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #8b5cf6; border-radius: 10px; }
+        body { font-family: 'Inter', sans-serif; background-color: #f8faff; }
+        .sbox-cell { transition: all 0.2s; }
+        .sbox-cell:hover { transform: scale(1.1); z-index: 10; border: 1px solid #4f46e5; }
+        .gradient-text { background: linear-gradient(90deg, #4f46e5, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
     </style>
 </head>
-<body>
-    <div id="root"></div>
+<body class="text-slate-800">
 
-    <script type="text/babel">
-        const { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend } = window.Recharts;
-        const { useState, useEffect, useMemo } = React;
+    <nav class="bg-white border-b border-slate-200 px-6 py-4 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="bg-indigo-600 text-white p-2 rounded-lg"><i class="fas fa-shield-alt fa-lg"></i></div>
+                <div>
+                    <h1 class="font-bold text-xl">S-box Cryptographic Analyzer</h1>
+                    <p class="text-xs text-slate-500">Ultimate S-box Data | 10 Metrics Analysis</p>
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <span class="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-full text-xs font-semibold" id="totalSboxes">Loading...</span>
+                <span class="px-3 py-1 bg-green-50 text-green-600 rounded-full text-xs font-semibold">Online</span>
+            </div>
+        </div>
+    </nav>
 
-        const AES_CONSTANT = 0x63;
-        const IRREDUCIBLE_POLY = 0x11B;
+    <main class="max-w-7xl mx-auto px-6 py-8 grid grid-cols-12 gap-6">
+        
+        <aside class="col-span-12 lg:col-span-3 space-y-6">
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-100">
+                <label class="block text-sm font-medium text-slate-700 mb-2">Select S-box Configuration</label>
+                <select id="sboxSelect" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none bg-slate-50">
+                    <option>Loading data...</option>
+                </select>
+                
+                <div class="mt-4 p-4 bg-slate-50 rounded-lg border border-slate-200">
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-xs font-semibold text-slate-500">ID</span>
+                        <span id="metaId" class="text-sm font-bold text-indigo-600">...</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-semibold text-slate-500">Type</span>
+                        <span id="metaType" class="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded">...</span>
+                    </div>
+                </div>
 
-        // --- Core Cryptography Logic ---
-        const gfMultiply = (a, b) => {
-            let p = 0;
-            for (let i = 0; i < 8; i++) {
-                if (b & 1) p ^= a;
-                const hiBitSet = a & 0x80;
-                a <<= 1;
-                if (hiBitSet) a ^= IRREDUCIBLE_POLY;
-                b >>= 1;
-            }
-            return p & 0xFF;
-        };
+                <div class="grid grid-cols-2 gap-3 mt-4">
+                    <div class="p-3 bg-green-50 rounded-lg text-center">
+                        <div class="text-xs text-green-600 font-semibold">Nonlinearity</div>
+                        <div id="metaNL" class="text-lg font-bold text-green-700">-</div>
+                    </div>
+                    <div class="p-3 bg-blue-50 rounded-lg text-center">
+                        <div class="text-xs text-blue-600 font-semibold">SAC Score</div>
+                        <div id="metaSAC" class="text-lg font-bold text-blue-700">-</div>
+                    </div>
+                </div>
+            </div>
 
-        const generateInverseTable = () => {
-            const inv = new Array(256).fill(0);
-            for (let i = 1; i < 256; i++) {
-                for (let j = 1; j < 256; j++) {
-                    if (gfMultiply(i, j) === 1) { inv[i] = j; break; }
-                }
-            }
-            return inv;
-        };
-        const INVERSE_TABLE = generateInverseTable();
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-100">
+                <h3 class="text-sm font-bold mb-4 flex items-center gap-2"><i class="fas fa-th"></i> Affine Matrix (Mockup)</h3>
+                <div class="grid grid-cols-8 gap-1" id="affineGrid">
+                    </div>
+            </div>
+        </aside>
 
-        const createSboxFromMatrix = (matrix) => {
-            const sbox = [];
-            for (let x = 0; x < 256; x++) {
-                const invX = INVERSE_TABLE[x];
-                const invBits = Array.from({ length: 8 }, (_, i) => (invX >> i) & 1);
-                const transBits = matrix.map(row => 
-                    row.reduce((sum, val, idx) => sum + (val * invBits[idx]), 0) % 2
-                );
-                let finalVal = 0;
-                for (let i = 0; i < 8; i++) if (transBits[i]) finalVal |= (1 << i);
-                sbox.push(finalVal ^ AES_CONSTANT);
-            }
-            return sbox;
-        };
+        <section class="col-span-12 lg:col-span-9 space-y-6">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-100">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold text-slate-700">Substitution Table (16x16)</h3>
+                        <div class="text-xs flex gap-2">
+                            <span class="flex items-center gap-1"><div class="w-3 h-3 bg-indigo-100"></div> Low</span>
+                            <span class="flex items-center gap-1"><div class="w-3 h-3 bg-indigo-600"></div> High</span>
+                        </div>
+                    </div>
+                    <div id="sboxGrid" class="grid grid-cols-16 gap-0.5 aspect-square border border-slate-200 bg-slate-50 p-1">
+                        </div>
+                </div>
 
-        const SboxHub = () => {
-            const [data, setData] = useState({ candidates: [] });
-            const [selected, setSelected] = useState(null);
-            const [activeTab, setActiveTab] = useState('analysis');
-            const [input, setInput] = useState('');
-            const [outputHex, setOutputHex] = useState('');
-            const [outputText, setOutputText] = useState('');
-            const [mode, setMode] = useState('text');
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-100 flex flex-col items-center justify-center">
+                    <h3 class="font-bold text-slate-700 mb-2 w-full text-left">Cryptographic Metrics Distribution</h3>
+                    <div class="w-full h-64 relative">
+                        <canvas id="radarChart"></canvas>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-4 text-center">Higher values generally indicate better properties (except TO/LAP/DAP)</p>
+                </div>
+            </div>
 
-            useEffect(() => {
-                fetch('/api/data')
-                    .then(res => res.json())
-                    .then(json => {
-                        setData(json);
-                        if (json.candidates?.length > 0) setSelected(json.candidates[0]);
-                    });
-            }, []);
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-100">
+                <h3 class="font-bold text-slate-700 mb-4 border-b pb-2"><i class="fas fa-chart-bar text-indigo-500 mr-2"></i> Comprehensive Metrics Evaluation</h3>
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-4" id="metricsContainer">
+                    </div>
+            </div>
 
-            const currentSbox = useMemo(() => selected?.matrix ? createSboxFromMatrix(selected.matrix) : [], [selected]);
-            const invSbox = useMemo(() => {
-                const inv = new Array(256);
-                currentSbox.forEach((v, i) => inv[v] = i);
-                return inv;
-            }, [currentSbox]);
-
-            const handleCrypto = (op) => {
-                if (!input) return;
-                let bytes = [];
-                if (mode === 'text') {
-                    bytes = Array.from(new TextEncoder().encode(input));
-                } else {
-                    bytes = input.split(/[\s,]+/).map(h => parseInt(h, 16)).filter(n => !isNaN(n));
-                }
-                const result = bytes.map(b => op === 'enc' ? currentSbox[b] : invSbox[b]);
-                setOutputHex(result.map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' '));
-                try { setOutputText(new TextDecoder().decode(new Uint8Array(result))); } catch(e) { setOutputText('Invalid Text Encoding'); }
-            };
-
-            if (!selected) return <div className="p-20 text-center text-purple-400 font-bold animate-pulse">Initializing Cryptographic Data...</div>;
-
-            return (
-                <div className="min-h-screen p-4 md:p-8 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-black">
-                    <div className="max-w-7xl mx-auto">
-                        <header className="mb-8 flex flex-col md:flex-row justify-between items-center gap-4 border-b border-white/5 pb-6">
-                            <div>
-                                <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-fuchsia-400 to-pink-500">S-BOX HUB</h1>
-                                <p className="text-slate-500 font-medium tracking-widest text-xs mt-1">SECURE ANALYSIS & ENCRYPTION SUITE</p>
-                            </div>
-                            <div className="flex bg-slate-900/50 p-1 rounded-2xl border border-white/5">
-                                {['analysis', 'matrix', 'encryption'].map(tab => (
-                                    <button key={tab} onClick={() => setActiveTab(tab)} className={`px-6 py-2 rounded-xl text-xs font-black transition-all uppercase ${activeTab === tab ? 'bg-violet-600 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}>
-                                        {tab}
-                                    </button>
-                                ))}
-                            </div>
-                        </header>
-
-                        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                            {/* Sidebar List */}
-                            <div className="lg:col-span-1 glass rounded-3xl p-4 h-[750px] overflow-y-auto custom-scrollbar shadow-2xl">
-                                <h3 className="text-xs font-black text-slate-500 mb-4 px-2 uppercase tracking-tighter">Candidate Matrices</h3>
-                                {data.candidates.map(c => (
-                                    <div key={c.id} onClick={() => setSelected(c)} className={`p-4 mb-2 rounded-2xl cursor-pointer transition-all border ${selected.id === c.id ? 'bg-violet-600/20 border-violet-500/50 shadow-inner' : 'bg-transparent border-transparent hover:bg-white/5'}`}>
-                                        <div className="font-extrabold text-sm">{c.id}</div>
-                                        <div className="text-[10px] text-slate-500 mt-1">NL: {c.metrics.NL} | DU: {c.metrics.DU}</div>
-                                    </div>
-                                ))}
-                            </div>
-
-                            {/* Main Display Area */}
-                            <div className="lg:col-span-3 space-y-6">
-                                {activeTab === 'analysis' && (
-                                    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                        <div className="glass p-8 rounded-[2rem] grid grid-cols-1 md:grid-cols-2 gap-10">
-                                            <div>
-                                                <h2 className="text-3xl font-black text-white mb-1">{selected.id}</h2>
-                                                <p className="text-violet-400 text-sm mb-6">{selected.name}</p>
-                                                <div className="h-[300px]">
-                                                    <ResponsiveContainer width="100%" height="100%">
-                                                        <RadarChart cx="50%" cy="50%" outerRadius="80%" data={[
-                                                            { m: 'NL', v: selected.metrics.NL },
-                                                            { m: 'SAC', v: selected.metrics.SAC * 200 },
-                                                            { m: 'LAP', v: (1 - selected.metrics.LAP) * 100 },
-                                                            { m: 'AD', v: selected.metrics.AD * 10 },
-                                                            { m: 'CI', v: selected.metrics.CI * 100 }
-                                                        ]}>
-                                                            <PolarGrid stroke="#ffffff10" />
-                                                            <PolarAngleAxis dataKey="m" tick={{fill: '#64748b', fontSize: 11}} />
-                                                            <Radar name="Metrics" dataKey="v" stroke="#a78bfa" fill="#a78bfa" fillOpacity={0.4} />
-                                                            <Tooltip contentStyle={{backgroundColor: '#0f172a', border: 'none', borderRadius: '12px'}} />
-                                                        </RadarChart>
-                                                    </ResponsiveContainer>
-                                                </div>
-                                            </div>
-                                            <div className="grid grid-cols-2 gap-4">
-                                                {Object.entries(selected.metrics).map(([k, v]) => (
-                                                    <div key={k} className="bg-slate-950/50 p-4 rounded-2xl border border-white/5">
-                                                        <div className="text-[10px] font-black text-slate-500 uppercase">{k}</div>
-                                                        <div className="text-xl font-mono text-violet-400">{typeof v === 'number' ? v.toFixed(3) : v}</div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {activeTab === 'matrix' && (
-                                    <div className="space-y-6 animate-in fade-in duration-500">
-                                        <div className="glass p-8 rounded-[2rem]">
-                                            <h3 className="text-xl font-black mb-6 text-fuchsia-400">8x8 Affine Matrix</h3>
-                                            <div className="inline-block bg-black/40 p-6 rounded-2xl border border-white/5">
-                                                {selected.matrix.map((row, i) => (
-                                                    <div key={i} className="flex gap-6 font-mono text-2xl">
-                                                        {row.map((bit, j) => (
-                                                            <span key={j} className={bit === 1 ? "text-fuchsia-500 font-black" : "text-slate-800"}>{bit}</span>
-                                                        ))}
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                        <div className="glass p-8 rounded-[2rem]">
-                                            <h3 className="text-xl font-black mb-6 text-violet-400">16x16 Substitution Table (S-Box)</h3>
-                                            <div className="overflow-x-auto custom-scrollbar">
-                                                <table className="w-full font-mono text-[10px] border-collapse">
-                                                    <thead>
-                                                        <tr>
-                                                            <th className="p-2 bg-white/5">-</th>
-                                                            {Array.from({length: 16}).map((_, i) => <th key={i} className="p-2 bg-white/5 text-slate-500">{i.toString(16).toUpperCase()}</th>)}
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        {Array.from({length: 16}).map((_, r) => (
-                                                            <tr key={r}>
-                                                                <td className="p-2 bg-white/5 text-slate-500 font-bold text-center">{r.toString(16).toUpperCase()}</td>
-                                                                {Array.from({length: 16}).map((_, c) => {
-                                                                    const val = currentSbox[r * 16 + c];
-                                                                    return <td key={c} className="p-2 border border-white/5 text-center hover:bg-violet-600 transition-colors cursor-crosshair">{val.toString(16).padStart(2, '0').toUpperCase()}</td>
-                                                                })}
-                                                            </tr>
-                                                        ))}
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {activeTab === 'encryption' && (
-                                    <div className="glass p-10 rounded-[2rem] space-y-8 animate-in zoom-in-95 duration-300">
-                                        <div className="flex gap-4 p-1 bg-slate-950 rounded-2xl w-fit border border-white/5">
-                                            <button onClick={() => setMode('text')} className={`px-8 py-2 rounded-xl text-xs font-bold ${mode === 'text' ? 'bg-slate-800' : 'text-slate-500'}`}>TEXT MODE</button>
-                                            <button onClick={() => setMode('hex')} className={`px-8 py-2 rounded-xl text-xs font-bold ${mode === 'hex' ? 'bg-slate-800' : 'text-slate-500'}`}>HEX MODE</button>
-                                        </div>
-                                        
-                                        <div className="space-y-4">
-                                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-2">Input Data</label>
-                                            <textarea className="w-full bg-black/50 p-6 rounded-2xl border border-white/10 font-mono text-violet-300 focus:outline-none focus:border-violet-500 transition-colors" rows="3" placeholder={mode==='text'?'Type your secret message...':'48 65 6c 6c 6f'} value={input} onChange={e => setInput(e.target.value)} />
-                                        </div>
-
-                                        <div className="flex gap-4">
-                                            <button onClick={() => handleCrypto('enc')} className="flex-1 bg-gradient-to-r from-violet-600 to-indigo-600 py-4 rounded-2xl font-black text-sm hover:shadow-lg hover:shadow-violet-500/20 transition-all">ENCRYPT DATA</button>
-                                            <button onClick={() => handleCrypto('dec')} className="flex-1 border border-white/10 py-4 rounded-2xl font-black text-sm hover:bg-white/5 transition-all">DECRYPT DATA</button>
-                                        </div>
-
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-white/5">
-                                            <div>
-                                                <label className="text-[10px] font-black text-slate-500 uppercase block mb-3">Substitution Hex</label>
-                                                <div className="p-5 bg-black rounded-2xl border border-white/5 font-mono text-emerald-400 min-h-[80px] text-sm break-all">{outputHex || '---'}</div>
-                                            </div>
-                                            <div>
-                                                <label className="text-[10px] font-black text-slate-500 uppercase block mb-3">Recovered Text</label>
-                                                <div className="p-5 bg-black rounded-2xl border border-white/5 font-mono text-violet-400 min-h-[80px] text-sm break-all">{outputText || '---'}</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-100">
+                    <h3 class="font-bold text-slate-700 mb-4 flex items-center gap-2">
+                        <i class="fas fa-lock text-purple-500"></i> Text Encryption
+                    </h3>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="text-xs font-semibold text-slate-500">Secret Key</label>
+                            <input type="text" id="textKey" value="rahasia" class="w-full p-2 border rounded text-sm bg-slate-50 focus:border-purple-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="text-xs font-semibold text-slate-500">Input Text / Hex</label>
+                            <textarea id="textInput" class="w-full p-2 border rounded text-sm bg-slate-50 h-20 focus:border-purple-500 outline-none" placeholder="Enter text..."></textarea>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="processText('encrypt')" class="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-2 rounded text-sm font-medium transition"><i class="fas fa-lock"></i> Encrypt</button>
+                            <button onclick="processText('decrypt')" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 py-2 rounded text-sm font-medium transition"><i class="fas fa-unlock"></i> Decrypt</button>
+                        </div>
+                        <div class="bg-slate-900 p-3 rounded text-green-400 font-mono text-xs break-all min-h-[60px]" id="textResult">
+                            Output will appear here...
                         </div>
                     </div>
                 </div>
-            );
-        };
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<SboxHub />);
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-100">
+                    <h3 class="font-bold text-slate-700 mb-4 flex items-center gap-2">
+                        <i class="fas fa-image text-pink-500"></i> Image Encryption
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="border-2 border-dashed border-slate-300 rounded-lg p-4 text-center hover:bg-slate-50 transition relative">
+                            <input type="file" id="imageInput" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer">
+                            <i class="fas fa-cloud-upload-alt text-2xl text-slate-400 mb-2"></i>
+                            <p class="text-xs text-slate-500">Click to upload image</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="processImage('encrypt')" class="flex-1 bg-pink-600 hover:bg-pink-700 text-white py-2 rounded text-sm font-medium transition">Encrypt Img</button>
+                            <button onclick="processImage('decrypt')" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 py-2 rounded text-sm font-medium transition">Decrypt Img</button>
+                        </div>
+                        <div class="border border-slate-200 rounded-lg p-2 min-h-[150px] flex items-center justify-center bg-slate-50">
+                            <img id="imageResult" class="max-h-40 max-w-full hidden rounded shadow-sm">
+                            <span id="imgPlaceholder" class="text-xs text-slate-400">Result preview</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+    </main>
+
+    <footer class="text-center py-6 text-slate-400 text-xs">
+        <p>&copy; 2025 S-box Cryptographic Analyzer Group Project.</p>
+    </footer>
+
+    <script>
+        let sboxData = [];
+        let currentSboxId = "AES_STD";
+        let radarChartInstance = null;
+
+        // 1. Initialize & Fetch Data
+        async function init() {
+            try {
+                const response = await fetch('/api/data');
+                const data = await response.json();
+                sboxData = data.candidates;
+                
+                document.getElementById('totalSboxes').innerText = `${data.metadata.total_sboxes} S-boxes`;
+                
+                populateDropdown();
+                updateDashboard(currentSboxId);
+            } catch (error) {
+                console.error("Failed to load data", error);
+                alert("Failed to load backend data.");
+            }
+        }
+
+        // 2. Populate Dropdown
+        function populateDropdown() {
+            const select = document.getElementById('sboxSelect');
+            select.innerHTML = '';
+            sboxData.forEach(item => {
+                const opt = document.createElement('option');
+                opt.value = item.id;
+                opt.innerText = `${item.name} (Score: ${item.score.toFixed(4)})`;
+                select.appendChild(opt);
+            });
+            select.addEventListener('change', (e) => updateDashboard(e.target.value));
+        }
+
+        // 3. Update Dashboard Logic
+        async function updateDashboard(id) {
+            currentSboxId = id;
+            const candidate = sboxData.find(x => x.id === id);
+            if (!candidate) return;
+
+            // Metadata
+            document.getElementById('metaId').innerText = candidate.id;
+            document.getElementById('metaType').innerText = candidate.type.toUpperCase();
+            document.getElementById('metaNL').innerText = candidate.metrics.NL;
+            document.getElementById('metaSAC').innerText = candidate.metrics.SAC.toFixed(4);
+
+            // Metrics Cards
+            renderMetricsCards(candidate.metrics);
+
+            // Radar Chart
+            updateRadarChart(candidate.metrics);
+
+            // 16x16 Grid (Fetch from API to get values)
+            try {
+                const res = await fetch(`/api/sbox-values/${id}`);
+                const sboxVals = await res.json();
+                renderGrid(sboxVals.sbox);
+            } catch (e) { console.error(e); }
+        }
+
+        // 4. Render Grid
+        function renderGrid(values) {
+            const grid = document.getElementById('sboxGrid');
+            grid.innerHTML = '';
+            values.forEach(val => {
+                const div = document.createElement('div');
+                div.className = 'sbox-cell flex items-center justify-center text-[8px] font-mono cursor-default';
+                div.innerText = val.toString(16).toUpperCase().padStart(2, '0');
+                
+                // Color mapping logic (Blue gradient)
+                const intensity = val / 255;
+                div.style.backgroundColor = `rgba(79, 70, 229, ${0.1 + (intensity * 0.9)})`;
+                div.style.color = intensity > 0.5 ? 'white' : 'black';
+                
+                div.title = `Val: ${val} (0x${val.toString(16).toUpperCase()})`;
+                grid.appendChild(div);
+            });
+        }
+
+        // 5. Render Metrics
+        function renderMetricsCards(m) {
+            const container = document.getElementById('metricsContainer');
+            container.innerHTML = '';
+            
+            const metrics = [
+                { k: 'NL', label: 'Nonlinearity', target: '112', icon: 'fa-cube', color: 'text-purple-600' },
+                { k: 'SAC', label: 'SAC', target: '0.5', icon: 'fa-bolt', color: 'text-blue-600' },
+                { k: 'BIC_NL', label: 'BIC-NL', target: '112', icon: 'fa-link', color: 'text-green-600' },
+                { k: 'LAP', label: 'LAP', target: 'Low', icon: 'fa-chart-line', color: 'text-red-600' },
+                { k: 'DAP', label: 'DAP', target: 'Low', icon: 'fa-compress-arrows-alt', color: 'text-orange-600' },
+                { k: 'DU', label: 'Diff. Unif.', target: '4', icon: 'fa-code-branch', color: 'text-indigo-600' },
+                { k: 'AD', label: 'Alg. Degree', target: '7', icon: 'fa-calculator', color: 'text-teal-600' },
+                { k: 'CI', label: 'Corr. Immunity', target: 'High', icon: 'fa-shield-virus', color: 'text-gray-600' },
+                { k: 'TO', label: 'Transp. Order', target: 'Low', icon: 'fa-eye', color: 'text-pink-600' },
+                { k: 'BIC_SAC', label: 'BIC-SAC', target: '0.5', icon: 'fa-random', color: 'text-yellow-600' }
+            ];
+
+            metrics.forEach(item => {
+                const val = typeof m[item.k] === 'number' && m[item.k] % 1 !== 0 ? m[item.k].toFixed(4) : m[item.k];
+                const html = `
+                    <div class="p-3 bg-slate-50 rounded-lg border border-slate-100 hover:shadow-md transition">
+                        <div class="flex items-center gap-2 mb-1">
+                            <i class="fas ${item.icon} ${item.color} text-xs"></i>
+                            <span class="text-[10px] font-bold text-slate-500 uppercase">${item.label}</span>
+                        </div>
+                        <div class="text-xl font-bold text-slate-800">${val}</div>
+                        <div class="text-[9px] text-slate-400">Target: ${item.target}</div>
+                    </div>
+                `;
+                container.innerHTML += html;
+            });
+        }
+
+        // 6. Update Radar Chart
+        function updateRadarChart(metrics) {
+            const ctx = document.getElementById('radarChart').getContext('2d');
+            const labels = ['SAC', 'BIC-SAC', 'LAP (Inv)', 'DAP (Inv)', 'NL (Norm)'];
+            // Normalize data for chart visuals
+            const data = [
+                metrics.SAC, 
+                metrics.BIC_SAC, 
+                1 - metrics.LAP, // Invert because lower LAP is better
+                1 - (metrics.DAP * 10), // Scale DAP
+                metrics.NL / 128
+            ];
+
+            if (radarChartInstance) radarChartInstance.destroy();
+
+            radarChartInstance = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Metric Performance',
+                        data: data,
+                        backgroundColor: 'rgba(79, 70, 229, 0.2)',
+                        borderColor: '#4f46e5',
+                        pointBackgroundColor: '#ec4899',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: { beginAtZero: true, max: 1.0, ticks: { display: false } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        // 7. Text Processing API
+        async function processText(mode) {
+            const text = document.getElementById('textInput').value;
+            const key = document.getElementById('textKey').value;
+            const resDiv = document.getElementById('textResult');
+            
+            if(!text || !key) { alert("Text and Key are required"); return; }
+            resDiv.innerText = "Processing...";
+
+            const endpoint = mode === 'encrypt' ? '/api/encrypt-text' : '/api/decrypt-text';
+            
+            try {
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ text, key, sbox_id: currentSboxId })
+                });
+                const data = await res.json();
+                if(data.error) resDiv.innerText = "Error: " + data.error;
+                else resDiv.innerText = data.result;
+            } catch (e) { resDiv.innerText = "Network Error"; }
+        }
+
+        // 8. Image Processing API
+        async function processImage(mode) {
+            const input = document.getElementById('imageInput');
+            if(input.files.length === 0) { alert("Select an image first"); return; }
+            
+            const formData = new FormData();
+            formData.append('file', input.files[0]);
+            formData.append('sbox_id', currentSboxId);
+            formData.append('mode', mode);
+
+            document.getElementById('imgPlaceholder').innerText = "Processing...";
+            
+            try {
+                const res = await fetch('/api/process-image', { method: 'POST', body: formData });
+                const data = await res.json();
+                if(data.status === 'success') {
+                    const img = document.getElementById('imageResult');
+                    img.src = data.image_data;
+                    img.classList.remove('hidden');
+                    document.getElementById('imgPlaceholder').classList.add('hidden');
+                } else {
+                    alert("Error: " + data.message);
+                }
+            } catch (e) { alert("Processing Failed"); }
+        }
+
+        // Run
+        init();
     </script>
 </body>
 </html>
